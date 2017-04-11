@@ -86,25 +86,15 @@ try{
 //custom
 var maxFrakons = Config.maxFrakons;
 var sailorMode = Config.sailorMode;
+
 var Quote = {};
-try{
-	Quote = require("./quote.json");
-} catch(e){ //no quote file, use defaults
-	//TODO
-}
-console.log(Object.keys(Quote));
+Quote = require("./quote.json");
+
 var keys = Object.keys(Quote);
-var weenies = Quote["weenie"];
-var ratemes = Quote["rateme"];
 var swears = require("./swearwords.json");
 
 
 var commands = {
-	// keys : {
-	// 	process: function(bot, msg, suffix) {
-	// 		msg.channel.sendMessage(test);
-	// 	}
-	// },	
 	"alias": {
 		usage: "<name> <actual command>",
 		description: "Creates command aliases. Useful for making simple commands on the fly",
@@ -271,22 +261,6 @@ var commands = {
     		}
     	}
     },
-    "weenie": {
-    	usage: "weenie",
-    	description: "Talk to the robot",
-    	process: function(bot,msg,suffix){
-    		var quote = weenies[Math.floor(Math.random() * (weenies.length))];
-    		msg.channel.sendMessage(quote);
-        }
-    },
-    "rateme": {
-    	usage: "weenie",
-    	description: "Talk to the robot",
-    	process: function(bot,msg,suffix){
-    		var quote = ratemes[Math.floor(Math.random() * (ratemes.length))];
-    		msg.channel.sendMessage(quote);
-        }
-    },
     "owpatch": {
     	usage: "owpatch",
     	description: "Link to the latest Overwatch patch notes",
@@ -327,6 +301,19 @@ if(AuthDetails.hasOwnProperty("client_id")){
 	}
 }
 
+if(keys.length > 0){
+	keys.forEach(function(element){
+		commands[element] = {
+			usage: element,
+			description: "Return random entry from " + element,
+			process: function(bot,msg,suffix){
+			var quotes = Quote[element];
+    		var quote = quotes[Math.floor(Math.random() * (quotes.length))];
+    		msg.channel.sendMessage(quote);
+        	}
+		}
+	});
+}
 
 try{
 	messagebox = require("./messagebox.json");
