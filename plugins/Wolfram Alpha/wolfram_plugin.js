@@ -11,7 +11,7 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 				console.log(error);
 				tmpMsg.edit("Couldn't talk to Wolfram Alpha :(")
 			} else {
-				console.log(JSON.stringify(result));
+				//console.log(JSON.stringify(result));
 				var response = "";
 				if(result.queryresult.$.success == "true"){
 					tmpMsg.delete();
@@ -42,14 +42,14 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 						}
 					}
 					if(result.queryresult.pod == null){
-						console.log("RIP");
+						console.log("Wolfail");
 						channel.sendMessage("Math is hard.");
 						return;
 					}
 			for(var a=0; a<result.queryresult.pod.length; a++)
 	        {
 	            var pod = result.queryresult.pod[a];
-	            var responseTypes = ["Result", "Plots", "Plot", "3D plot"];
+	            var responseTypes = ["Result", "Plots", "Plot", "3D plot", "Image", "Series information"];
 	            if(responseTypes.indexOf(pod.$.title) >= 0) {
 	            response += "**"+pod.$.title+"**:\n";
 	            for(var b=0; b<pod.subpod.length; b++)
