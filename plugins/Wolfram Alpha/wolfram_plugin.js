@@ -41,9 +41,16 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 							}
 						}
 					}
-					for(var a=0; a<result.queryresult.pod.length; a++)
+					if(result.queryresult.pod == null){
+						console.log("RIP");
+						channel.sendMessage("Math is hard.");
+						return;
+					}
+			for(var a=0; a<result.queryresult.pod.length; a++)
 	        {
 	            var pod = result.queryresult.pod[a];
+	            var responseTypes = ["Result", "Plots", "Plot", "3D plot"];
+	            if(responseTypes.indexOf(pod.$.title) >= 0) {
 	            response += "**"+pod.$.title+"**:\n";
 	            for(var b=0; b<pod.subpod.length; b++)
 	            {
@@ -61,6 +68,7 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 									}
 	            }
 							response += "\n";
+	            }
 	        }
 				}	else {
 					if(result.queryresult.hasOwnProperty("didyoumeans")){

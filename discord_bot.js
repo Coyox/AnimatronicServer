@@ -85,6 +85,7 @@ try{
 }
 //custom
 var maxFrakons = Config.maxFrakons;
+var sailorMode = Config.sailorMode;
 var Quote = {};
 try{
 	Quote = require("./quote.json");
@@ -92,6 +93,8 @@ try{
 	//TODO
 }
 var quotes = Quote["weenie"];
+var swears = require("./swearwords.json");
+
 
 var commands = {	
 	"alias": {
@@ -285,6 +288,14 @@ var commands = {
     		}
     	}
     },
+    "sailormode": {
+    	usage: "sailormode",
+    	description: "Toggle sailor mode on or off",
+    	process: function(bot, msg, suffix){
+    		sailorMode = !sailorMode;
+    		msg.channel.sendMessage("Sailor mode is now " + sailorMode);
+    	}
+    }
 };
 
 if(AuthDetails.hasOwnProperty("client_id")){
@@ -421,6 +432,24 @@ function checkMessageForCommand(msg, isEdit) {
         //drop our own messages to prevent feedback loops
         if(msg.author == bot.user){
             return;
+        }
+
+        if(sailorMode){
+        	//TODO
+        	var words = msg.content.split(' ');
+        	if(words.length >= 5){
+	        	var counter = 0;
+	        	words.forEach(function(element){
+	        		if(swears.indexOf(element) >= 0){
+	        			counter++;
+	        		}
+	        	});
+	        	if((counter / words.length) > .75){
+	        		msg.delete(100);
+	        		msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
+	        		return;
+	        	}
+        	}
         }
 
         if (msg.author != bot.user && msg.isMentioned(bot.user)) {

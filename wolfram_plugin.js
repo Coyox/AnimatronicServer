@@ -1,5 +1,5 @@
 var Wolfram = require('node-wolfram');
-var AuthDetails = require("./auth.json");
+var AuthDetails = require("../../auth.json");
 
 function WolframPlugin () {
 	this.wolfram = new Wolfram(AuthDetails.wolfram_api_key)
@@ -11,6 +11,7 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 				console.log(error);
 				tmpMsg.edit("Couldn't talk to Wolfram Alpha :(")
 			} else {
+				console.log(JSON.stringify(result));
 				var response = "";
 				if(result.queryresult.$.success == "true"){
 					tmpMsg.delete();
@@ -40,9 +41,16 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 							}
 						}
 					}
-					for(var a=0; a<result.queryresult.pod.length; a++)
+					if(result.queryresult.pod == null){
+						console.log("RIP");
+						channel.sendMessage("RIP");
+						return;
+					}
+			for(var a=0; a<result.queryresult.pod.length; a++)
 	        {
 	            var pod = result.queryresult.pod[a];
+	            var responseTypes = ["Result", "Plots", "Plot", "3D plot"];
+	            if(responseTypes.indexOf(pod.$.title) >= 0) {
 	            response += "**"+pod.$.title+"**:\n";
 	            for(var b=0; b<pod.subpod.length; b++)
 	            {
@@ -60,6 +68,7 @@ WolframPlugin.prototype.respond = function (query, channel, bot,tmpMsg) {
 									}
 	            }
 							response += "\n";
+	            }
 	        }
 				}	else {
 					if(result.queryresult.hasOwnProperty("didyoumeans")){

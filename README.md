@@ -3,9 +3,12 @@ A chat bot for discord app based off <a href="https://github.com/hydrabolt/disco
 Customized for Dunces and Dragons
 
 # Features:
-- !frakon => Summon a squadron of Frakons
+- !frakon/fraktower/frakmatrix => Summon some Frakons
 - !davidplz => DAVID PLZ
 - !weenie => Talk to the server
+- !sailormode => Deletes nasty sailor language. Swears taken from https://github.com/KanoComputing/nodejs-profanity-util
 
 And much more! Try !help to get a full list of available commands
+
+
 
