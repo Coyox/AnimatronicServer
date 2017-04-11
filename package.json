@@ -21,5 +21,8 @@
     "tumblr.js": "0.0.x",
     "underscore": "1.8.x"
   },
+  "scripts": {
+    "start": "node discord_bot.js"
+  },
   "main": "discord_bot.js"
 }
