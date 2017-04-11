@@ -134,7 +134,7 @@ var commands = {
         }
     },
     "idle": {
-				usage: "[status]",
+		usage: "[status]",
         description: "sets bot status to idle",
         process: function(bot,msg,suffix){ 
 	    bot.user.setStatus("idle");
@@ -142,7 +142,7 @@ var commands = {
 	}
     },
     "online": {
-				usage: "[status]",
+		usage: "[status]",
         description: "sets bot status to online",
         process: function(bot,msg,suffix){ 
 	    bot.user.setStatus("online");
@@ -158,16 +158,6 @@ var commands = {
         usage: "<message>",
         description: "bot says message with text to speech",
         process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix,{tts:true});}
-    },
-    "davidplz": {
-    	usage: "DAVID PLEASE",
-    	description: "D A V I D P L E A S E",
-    	process: function(bot,msg,suffix){
-    		msg.channel.sendMessage("<@195367726582071296> __***DAVID PLZ***__");
-            if(suffix){
-                msg.channel.sendMessage( "*No args required, dumbass*");
-            }
-        }
     },
 	"msg": {
 		usage: "<user> <message to leave user>",
@@ -198,10 +188,20 @@ var commands = {
 			if(Permissions.checkPermission(msg.author,"eval")){
 				msg.channel.sendMessage( eval(suffix,bot));
 			} else {
-				msg.channel.sendMessage( msg.author + " doesn't have permission to execute eval!");
+				msg.channel.sendMessage( msg.author + " is too much of a weenie to run eval()");
 			}
 		}
 	},
+	"davidplz": {
+    	usage: "DAVID PLEASE",
+    	description: "Message a plz to david",
+    	process: function(bot,msg,suffix){
+    		msg.channel.sendMessage(Config.plz + " __***DAVID PLZ***__");
+            if(suffix){
+                msg.channel.sendMessage( "*No args required, dumbass*");
+            }
+        }
+    },
 	"frakon": {
     	usage: "Frakon <number>",
     	description: "Summon a squad of up to maxFrakons Frakons",
@@ -213,7 +213,7 @@ var commands = {
     		}
     		var fraks = "";
     		for(var i = 0; i<count; i++){
-    			fraks += "<:frakon:300772852167213056> ";
+    			fraks += Config.frakon;
     		}
     		msg.channel.sendMessage(fraks);
         }
@@ -228,10 +228,33 @@ var commands = {
     			return;
     		}
     		for(var i = 0; i<count; i++){
-    			msg.channel.sendMessage("<:frakon:300772852167213056>");
+    			msg.channel.sendMessage(Config.frakon);
     		}
     		
         }
+    },
+    "frakmatrix":{
+    	usage: "Frakon <num x> <num y>",
+    	description: "The ultimate 2D Frakon experience (max 5x5)",
+    	process: function(bot,msg,suffix){
+    		var args = suffix.split(' ');
+    		var x = parseInt(args[0]);
+    		var y = parseInt(args[1]);
+
+    		if(x > 5 || y > 5){
+    			msg.channel.sendMessage("Over maximum Frakon capacity");
+    			return;
+    		}
+
+    		var fraks = "";
+    		for(var i = 0; i<x; i++){
+    			fraks += Config.frakon;
+    		}
+
+    		for(var i = 0; i<y; i++){
+    			msg.channel.sendMessage(fraks);
+    		}
+    	}
     },
     "weenie": {
     	usage: "weenie",
@@ -240,6 +263,27 @@ var commands = {
     		var quote = quotes[Math.floor(Math.random() * (quotes.length))];
     		msg.channel.sendMessage(quote);
         }
+    },
+    "owpatch": {
+    	usage: "owpatch",
+    	description: "Link to the latest Overwatch patch notes",
+    	process: function(bot, msg, suffix){
+    		var url = "https://playoverwatch.com/en-us/game/patch-notes/pc/";
+    		msg.channel.sendMessage(url);
+    	}
+    },
+    "owstats": {
+    	usage: "owstats <BlizzID>",
+    	description: "Generates MasterOverwatch URL for Blizard ID",
+    	process: function(bot, msg, suffix){
+    		const regex = /^\w+[#]\d+$/g;
+    		if(regex.test(suffix)){
+    			var bID = suffix.replace("#", "-");
+    			msg.channel.sendMessage("https://masteroverwatch.com/profile/pc/us/" + bID);
+    		} else {
+    			msg.channel.sendMessage("I need the whole ID with the #, weenie.");
+    		}
+    	}
     },
 };
 
