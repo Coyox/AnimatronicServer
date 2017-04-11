@@ -92,11 +92,19 @@ try{
 } catch(e){ //no quote file, use defaults
 	//TODO
 }
-var quotes = Quote["weenie"];
+console.log(Object.keys(Quote));
+var keys = Object.keys(Quote);
+var weenies = Quote["weenie"];
+var ratemes = Quote["rateme"];
 var swears = require("./swearwords.json");
 
 
-var commands = {	
+var commands = {
+	// keys : {
+	// 	process: function(bot, msg, suffix) {
+	// 		msg.channel.sendMessage(test);
+	// 	}
+	// },	
 	"alias": {
 		usage: "<name> <actual command>",
 		description: "Creates command aliases. Useful for making simple commands on the fly",
@@ -241,6 +249,10 @@ var commands = {
     	description: "The ultimate 2D Frakon experience (max 5x5)",
     	process: function(bot,msg,suffix){
     		var args = suffix.split(' ');
+    		if(args.length != 2){
+    			msg.channel.sendMessage("I need an x and y value to render this shit.");
+    			return;
+    		}
     		var x = parseInt(args[0]);
     		var y = parseInt(args[1]);
 
@@ -263,7 +275,15 @@ var commands = {
     	usage: "weenie",
     	description: "Talk to the robot",
     	process: function(bot,msg,suffix){
-    		var quote = quotes[Math.floor(Math.random() * (quotes.length))];
+    		var quote = weenies[Math.floor(Math.random() * (weenies.length))];
+    		msg.channel.sendMessage(quote);
+        }
+    },
+    "rateme": {
+    	usage: "weenie",
+    	description: "Talk to the robot",
+    	process: function(bot,msg,suffix){
+    		var quote = ratemes[Math.floor(Math.random() * (ratemes.length))];
     		msg.channel.sendMessage(quote);
         }
     },
@@ -445,7 +465,7 @@ function checkMessageForCommand(msg, isEdit) {
 	        		}
 	        	});
 	        	if((counter / words.length) > .75){
-	        		msg.delete(100);
+	        		msg.delete(1000);
 	        		msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
 	        		return;
 	        	}

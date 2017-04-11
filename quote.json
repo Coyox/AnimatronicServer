@@ -5,5 +5,15 @@
     "I’m sorry, sir, but my sensors indicate that you are indeed a weenie.",
     "Would you care for another diet cola with a lemon twist, weenie?",
     "I am a robot, not a miracle worker."
+  ],
+  "rateme": [
+	  "You are not a Weenie.",
+	  "Ask again later.",
+	  "Weenie Overload Detected.",
+	  "You are a Mega Weenie.",
+	  "You are a Super Weenie.",
+	  "Your cuttent weenie level is 5/10.",
+	  "You are a Wumbo Weenie.",
+	  "Weenie."
   ]
 }
