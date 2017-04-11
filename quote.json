@@ -6,6 +6,9 @@
     "Would you care for another diet cola with a lemon twist, weenie?",
     "I am a robot, not a miracle worker."
   ],
+  "notaweenie": [
+    "I’m sorry, sir, but my sensors indicate that you are indeed a weenie."
+  ],
   "rateme": [
 	  "You are not a Weenie.",
 	  "Ask again later.",
