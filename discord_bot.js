@@ -62,6 +62,7 @@ try{
 } catch(e){ //no config file, use defaults
 	Config.debug = false;
 	Config.commandPrefix = '!';
+	Config.maxFrakons = 15;
 	try{
 		if(fs.lstatSync("./config.json").isFile()){
 			console.log("WARNING: config.json found but we couldn't read it!\n" + e.stack);
@@ -82,6 +83,15 @@ try{
 	//No aliases defined
 	aliases = {};
 }
+//custom
+var maxFrakons = Config.maxFrakons;
+var Quote = {};
+try{
+	Quote = require("./quote.json");
+} catch(e){ //no quote file, use defaults
+	//TODO
+}
+var quotes = Quote["weenie"];
 
 var commands = {	
 	"alias": {
@@ -149,6 +159,16 @@ var commands = {
         description: "bot says message with text to speech",
         process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix,{tts:true});}
     },
+    "davidplz": {
+    	usage: "DAVID PLEASE",
+    	description: "D A V I D P L E A S E",
+    	process: function(bot,msg,suffix){
+    		msg.channel.sendMessage("<@195367726582071296> __***DAVID PLZ***__");
+            if(suffix){
+                msg.channel.sendMessage( "*No args required, dumbass*");
+            }
+        }
+    },
 	"msg": {
 		usage: "<user> <message to leave user>",
 		description: "leaves a message for a user the next time they come online",
@@ -181,7 +201,46 @@ var commands = {
 				msg.channel.sendMessage( msg.author + " doesn't have permission to execute eval!");
 			}
 		}
-	}
+	},
+	"frakon": {
+    	usage: "Frakon <number>",
+    	description: "Summon a squad of up to maxFrakons Frakons",
+    	process: function(bot,msg,suffix){
+    		var count = parseInt(suffix, 10);
+    		if(count > maxFrakons){
+    			msg.channel.sendMessage("_Too many Frakons_");
+    			return;
+    		}
+    		var fraks = "";
+    		for(var i = 0; i<count; i++){
+    			fraks += "<:frakon:300772852167213056> ";
+    		}
+    		msg.channel.sendMessage(fraks);
+        }
+    },
+    "fraktower": {
+    	usage: "Frakon <number>",
+    	description: "Build a tower of up to 5 Frakons",
+    	process: function(bot,msg,suffix){
+    		var count = parseInt(suffix, 10);
+    		if(count > 5){
+    			msg.channel.sendMessage("_Too many Frakons_");
+    			return;
+    		}
+    		for(var i = 0; i<count; i++){
+    			msg.channel.sendMessage("<:frakon:300772852167213056>");
+    		}
+    		
+        }
+    },
+    "weenie": {
+    	usage: "weenie",
+    	description: "Talk to the robot",
+    	process: function(bot,msg,suffix){
+    		var quote = quotes[Math.floor(Math.random() * (quotes.length))];
+    		msg.channel.sendMessage(quote);
+        }
+    },
 };
 
 if(AuthDetails.hasOwnProperty("client_id")){
