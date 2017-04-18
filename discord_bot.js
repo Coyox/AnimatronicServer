@@ -63,6 +63,7 @@ try{
 	Config.debug = false;
 	Config.commandPrefix = '!';
 	Config.maxFrakons = 15;
+	Config.admin = "";
 	try{
 		if(fs.lstatSync("./config.json").isFile()){
 			console.log("WARNING: config.json found but we couldn't read it!\n" + e.stack);
@@ -136,7 +137,6 @@ var commands = {
 			}
 			var cmd = args[0];
 			var user = args[1];
-			console.log(user);
 			var flag = args[2];
 
 			if(flag != 0 && flag != 1){
@@ -174,6 +174,10 @@ var commands = {
 				msg.channel.sendMessage("No id found for " + user);
 				return;
 			}
+			if(userId == Config.admin && msg.author.id != Config.admin){
+				msg.channel.sendMessage("Can't let you do that, " + msg.author);
+				return;
+			}
 
 			//Check flag
 			var verb;
@@ -200,6 +204,10 @@ var commands = {
 		usage: "<command> <0||1>",
 		description: "Grant or remove command permission to global",
 		process: function(bot,msg,suffix){
+			if(msg.author.id != Config.admin){
+				msg.channel.sendMessage("Can't let you do that, " + msg.author);
+				return;
+			}
 			var args = suffix.split(' ');
 			if(args.length != 2){
 				msg.channel.sendMessage("Insufficient arguments my dude.");
@@ -218,7 +226,6 @@ var commands = {
 				msg.channel.sendMessage("Command " + cmd + " does not exist.");
 				return;
 			} 
-			console.log("Found command " + cmd);
 
 			//Check flag
 			var verb;
