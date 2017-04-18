@@ -125,41 +125,41 @@ var commands = {
 			msg.channel.sendMessage(text);
 		}
 	},
-    "ping": {
-        description: "responds pong, useful for checking if bot is alive",
-        process: function(bot, msg, suffix) {
-            msg.channel.sendMessage( msg.author+" pong!");
-            if(suffix){
-                msg.channel.sendMessage( "note that !ping takes no arguments!");
-            }
-        }
-    },
-    "idle": {
+	"ping": {
+		description: "responds pong, useful for checking if bot is alive",
+		process: function(bot, msg, suffix) {
+			msg.channel.sendMessage( msg.author+" pong!");
+			if(suffix){
+				msg.channel.sendMessage( "note that !ping takes no arguments!");
+			}
+		}
+	},
+	"idle": {
 		usage: "[status]",
-        description: "sets bot status to idle",
-        process: function(bot,msg,suffix){ 
-	    bot.user.setStatus("idle");
-	    bot.user.setGame(suffix);
-	}
-    },
-    "online": {
+		description: "sets bot status to idle",
+		process: function(bot,msg,suffix){ 
+			bot.user.setStatus("idle");
+			bot.user.setGame(suffix);
+		}
+	},
+	"online": {
 		usage: "[status]",
-        description: "sets bot status to online",
-        process: function(bot,msg,suffix){ 
-	    bot.user.setStatus("online");
-	    bot.user.setGame(suffix);
-	}
-    },
-    "say": {
-        usage: "<message>",
-        description: "bot says message",
-        process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix);}
-    },
+		description: "sets bot status to online",
+		process: function(bot,msg,suffix){ 
+			bot.user.setStatus("online");
+			bot.user.setGame(suffix);
+		}
+	},
+	"say": {
+		usage: "<message>",
+		description: "bot says message",
+		process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix);}
+	},
 	"announce": {
-        usage: "<message>",
-        description: "bot says message with text to speech",
-        process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix,{tts:true});}
-    },
+		usage: "<message>",
+		description: "bot says message with text to speech",
+		process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix,{tts:true});}
+	},
 	"msg": {
 		usage: "<user> <message to leave user>",
 		description: "leaves a message for a user the next time they come online",
@@ -194,71 +194,57 @@ var commands = {
 		}
 	},
 	"davidplz": {
-    	usage: "DAVID PLEASE",
-    	description: "Message a plz to david",
-    	process: function(bot,msg,suffix){
-    		msg.channel.sendMessage(Config.plz + " __***DAVID PLZ***__");
-            if(suffix){
-                msg.channel.sendMessage( "*No args required, dumbass*");
-            }
-        }
-    },
+		usage: "DAVID PLEASE",
+		description: "Message a plz to david",
+		process: function(bot,msg,suffix){
+			msg.channel.sendMessage(Config.plz + " __***DAVID PLZ***__");
+			if(suffix){
+				msg.channel.sendMessage( "*No args required, dumbass*");
+			}
+		}
+	},
 	"frakon": {
-    	usage: "Frakon <number>",
-    	description: "Summon a squad of up to maxFrakons Frakons",
-    	process: function(bot,msg,suffix){
-    		var count = parseInt(suffix, 10);
-    		if(count > maxFrakons){
-    			msg.channel.sendMessage("_Too many Frakons_");
-    			return;
-    		}
-    		var fraks = "";
-    		for(var i = 0; i<count; i++){
-    			fraks += Config.frakon;
-    		}
-    		msg.channel.sendMessage(fraks);
-        }
-    },
-    "fraktower": {
-    	usage: "Frakon <number>",
-    	description: "Build a tower of up to 5 Frakons",
-    	process: function(bot,msg,suffix){
-    		var count = parseInt(suffix, 10);
-    		if(count > 5){
-    			msg.channel.sendMessage("_Too many Frakons_");
-    			return;
-    		}
-    		for(var i = 0; i<count; i++){
-    			msg.channel.sendMessage(Config.frakon);
-    		}
-    		
-        }
-    },
-    "frakmatrix":{
-    	usage: "Frakon <num x> <num y>",
-    	description: "The ultimate 2D Frakon experience (max 5x5)",
-    	process: function(bot,msg,suffix){
-    		var args = suffix.split(' ');
-    		if(args.length != 2){
-    			msg.channel.sendMessage("I need an x and y value to render this shit.");
-    			return;
-    		}
-    		var x = parseInt(args[0]);
-    		var y = parseInt(args[1]);
+		usage: "Frakon <number> <number>",
+		description: "Summon a squad, tower or matrix of up to maxFrakons Frakons",
+		process: function(bot,msg,suffix){
+			var args = suffix.split(' ');
+			var fraks = "";
+			//var count = 0;
+			switch(args.length){
+				case 1:
+				//Frakon
+				var count = parseInt(suffix,10);
+				for(var i = 0; i<count; i++){
+					if(fraks.length + Config.frakon.length < 2000){
+						fraks += Config.frakon;
+					} else {
+						msg.channel.sendMessage(fraks);
+						fraks = Config.frakon;
+						continue;
+					}
+				}
+				msg.channel.sendMessage(fraks);
+				break;
 
-    		if(x > 5 || y > 5){
-    			msg.channel.sendMessage("Over maximum Frakon capacity");
-    			return;
-    		}
+				case 2:
+				//Matrix
+				var x = parseInt(args[0], 10); var y = parseInt(args[1], 10);
+				if(x > maxFrakons || y > maxFrakons){
+					msg.channel.sendMessage("_Too many Frakons. Only "+ maxFrakons+ " allowed._");
+				}
+				for(var i = 0; i<x; i++){
+					if(fraks.length + Config.frakon.length < 2000){
+						fraks += Config.frakon;
+					}
+				}
+				for(var i = 0; i<y; i++){
+    				msg.channel.sendMessage(fraks);
+    			}
+				break;
 
-    		var fraks = "";
-    		for(var i = 0; i<x; i++){
-    			fraks += Config.frakon;
-    		}
-
-    		for(var i = 0; i<y; i++){
-    			msg.channel.sendMessage(fraks);
-    		}
+				default:
+				msg.channel.sendMessage("I don't even. Use !help you dingus.")
+			}
     	}
     },
     "owpatch": {
@@ -307,10 +293,10 @@ if(keys.length > 0){
 			usage: element,
 			description: "Return random entry from " + element,
 			process: function(bot,msg,suffix){
-			var quotes = Quote[element];
-    		var quote = quotes[Math.floor(Math.random() * (quotes.length))];
-    		msg.channel.sendMessage(quote);
-        	}
+				var quotes = Quote[element];
+				var quote = quotes[Math.floor(Math.random() * (quotes.length))];
+				msg.channel.sendMessage(quote);
+			}
 		}
 	});
 }
@@ -344,18 +330,18 @@ bot.on("disconnected", function () {
 function checkMessageForCommand(msg, isEdit) {
 	//check if message is a command
 	if(msg.author.id != bot.user.id && (msg.content.startsWith(Config.commandPrefix))){
-        console.log("treating " + msg.content + " from " + msg.author + " as command");
+		console.log("treating " + msg.content + " from " + msg.author + " as command");
 		var cmdTxt = msg.content.split(" ")[0].substring(Config.commandPrefix.length);
         var suffix = msg.content.substring(cmdTxt.length+Config.commandPrefix.length+1);//add one for the ! and one for the space
         if(msg.isMentioned(bot.user)){
-			try {
-				cmdTxt = msg.content.split(" ")[1];
-				suffix = msg.content.substring(bot.user.mention().length+cmdTxt.length+Config.commandPrefix.length+1);
+        	try {
+        		cmdTxt = msg.content.split(" ")[1];
+        		suffix = msg.content.substring(bot.user.mention().length+cmdTxt.length+Config.commandPrefix.length+1);
 			} catch(e){ //no command
 				msg.channel.sendMessage("Yes?");
 				return;
 			}
-        }
+		}
 		alias = aliases[cmdTxt];
 		if(alias){
 			console.log(cmdTxt + " is an alias, constructed command is " + alias.join(" ") + " " + suffix);
@@ -363,47 +349,47 @@ function checkMessageForCommand(msg, isEdit) {
 			suffix = alias[1] + " " + suffix;
 		}
 		var cmd = commands[cmdTxt];
-        if(cmdTxt === "help"){
+		if(cmdTxt === "help"){
             //help is special since it iterates over the other commands
-						if(suffix){
-							var cmds = suffix.split(" ").filter(function(cmd){return commands[cmd]});
-							var info = "";
-							for(var i=0;i<cmds.length;i++) {
-								var cmd = cmds[i];
-								info += "**"+Config.commandPrefix + cmd+"**";
-								var usage = commands[cmd].usage;
-								if(usage){
-									info += " " + usage;
-								}
-								var description = commands[cmd].description;
-								if(description instanceof Function){
-									description = description();
-								}
-								if(description){
-									info += "\n\t" + description;
-								}
-								info += "\n"
-							}
-							msg.channel.sendMessage(info);
-						} else {
-							msg.author.sendMessage("**Available Commands:**").then(function(){
-								var batch = "";
-								var sortedCommands = Object.keys(commands).sort();
-								for(var i in sortedCommands) {
-									var cmd = sortedCommands[i];
-									var info = "**"+Config.commandPrefix + cmd+"**";
-									var usage = commands[cmd].usage;
-									if(usage){
-										info += " " + usage;
-									}
-									var description = commands[cmd].description;
-									if(description instanceof Function){
-										description = description();
-									}
-									if(description){
-										info += "\n\t" + description;
-									}
-									var newBatch = batch + "\n" + info;
+            if(suffix){
+            	var cmds = suffix.split(" ").filter(function(cmd){return commands[cmd]});
+            	var info = "";
+            	for(var i=0;i<cmds.length;i++) {
+            		var cmd = cmds[i];
+            		info += "**"+Config.commandPrefix + cmd+"**";
+            		var usage = commands[cmd].usage;
+            		if(usage){
+            			info += " " + usage;
+            		}
+            		var description = commands[cmd].description;
+            		if(description instanceof Function){
+            			description = description();
+            		}
+            		if(description){
+            			info += "\n\t" + description;
+            		}
+            		info += "\n"
+            	}
+            	msg.channel.sendMessage(info);
+            } else {
+            	msg.author.sendMessage("**Available Commands:**").then(function(){
+            		var batch = "";
+            		var sortedCommands = Object.keys(commands).sort();
+            		for(var i in sortedCommands) {
+            			var cmd = sortedCommands[i];
+            			var info = "**"+Config.commandPrefix + cmd+"**";
+            			var usage = commands[cmd].usage;
+            			if(usage){
+            				info += " " + usage;
+            			}
+            			var description = commands[cmd].description;
+            			if(description instanceof Function){
+            				description = description();
+            			}
+            			if(description){
+            				info += "\n\t" + description;
+            			}
+            			var newBatch = batch + "\n" + info;
 									if(newBatch.length > (1024 - 8)){ //limit message length
 										msg.author.sendMessage(batch);
 										batch = info;
@@ -414,56 +400,56 @@ function checkMessageForCommand(msg, isEdit) {
 								if(batch.length > 0){
 									msg.author.sendMessage(batch);
 								}
-						});
-					}
+							});
+            }
         }
-		else if(cmd) {
-			if(Permissions.checkPermission(msg.author,cmdTxt)){
-				try{
-					cmd.process(bot,msg,suffix,isEdit);
-				} catch(e){
-					var msgTxt = "command " + cmdTxt + " failed :(";
-					if(Config.debug){
-						 msgTxt += "\n" + e.stack;
-					}
-					msg.channel.sendMessage(msgTxt);
-				}
-			} else {
-				msg.channel.sendMessage("You are not allowed to run " + cmdTxt + "!");
-			}
-		} else {
-			msg.channel.sendMessage(cmdTxt + " not recognized as a command!").then((message => message.delete(5000)))
-		}
-	} else {
+        else if(cmd) {
+        	if(Permissions.checkPermission(msg.author,cmdTxt)){
+        		try{
+        			cmd.process(bot,msg,suffix,isEdit);
+        		} catch(e){
+        			var msgTxt = "command " + cmdTxt + " failed :(";
+        			if(Config.debug){
+        				msgTxt += "\n" + e.stack;
+        			}
+        			msg.channel.sendMessage(msgTxt);
+        		}
+        	} else {
+        		msg.channel.sendMessage("You are not allowed to run " + cmdTxt + "!");
+        	}
+        } else {
+        	msg.channel.sendMessage(cmdTxt + " not recognized as a command!").then((message => message.delete(5000)))
+        }
+    } else {
 		//message isn't a command or is from us
         //drop our own messages to prevent feedback loops
         if(msg.author == bot.user){
-            return;
+        	return;
         }
 
         if(sailorMode){
         	//TODO
         	var words = msg.content.split(' ');
         	if(words.length >= 5){
-	        	var counter = 0;
-	        	words.forEach(function(element){
-	        		if(swears.indexOf(element) >= 0){
-	        			counter++;
-	        		}
-	        	});
-	        	if((counter / words.length) > .75){
-	        		msg.delete(1000);
-	        		msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
-	        		return;
-	        	}
+        		var counter = 0;
+        		words.forEach(function(element){
+        			if(swears.indexOf(element) >= 0){
+        				counter++;
+        			}
+        		});
+        		if((counter / words.length) > .75){
+        			msg.delete(1000);
+        			msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
+        			return;
+        		}
         	}
         }
 
         if (msg.author != bot.user && msg.isMentioned(bot.user)) {
-                msg.channel.sendMessage(msg.author + ", you called?");
+        	msg.channel.sendMessage(msg.author + ", you called?");
         } else {
 
-				}
+        }
     }
 }
 
@@ -479,29 +465,29 @@ bot.on("presence", function(user,status,gameId) {
 	console.log(user+" went "+status);
 	//}
 	try{
-	if(status != 'offline'){
-		if(messagebox.hasOwnProperty(user.id)){
-			console.log("found message for " + user.id);
-			var message = messagebox[user.id];
-			var channel = bot.channels.get("id",message.channel);
-			delete messagebox[user.id];
-			updateMessagebox();
-			bot.sendMessage(channel,message.content);
+		if(status != 'offline'){
+			if(messagebox.hasOwnProperty(user.id)){
+				console.log("found message for " + user.id);
+				var message = messagebox[user.id];
+				var channel = bot.channels.get("id",message.channel);
+				delete messagebox[user.id];
+				updateMessagebox();
+				bot.sendMessage(channel,message.content);
+			}
 		}
-	}
 	}catch(e){}
 });
 
 
 exports.addCommand = function(commandName, commandObject){
-    try {
-        commands[commandName] = commandObject;
-    } catch(err){
-        console.log(err);
-    }
+	try {
+		commands[commandName] = commandObject;
+	} catch(err){
+		console.log(err);
+	}
 }
 exports.commandCount = function(){
-    return Object.keys(commands).length;
+	return Object.keys(commands).length;
 }
 if(AuthDetails.bot_token){
 	console.log("logging in with token");
