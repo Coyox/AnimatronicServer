@@ -21,7 +21,7 @@ try {
 }
 
 // Load custom permissions
-var dangerousCommands = ["eval","pullanddeploy","setUsername"];
+var dangerousCommands = ["eval","pullanddeploy","setUsername", "permit", "gpermit"];
 var Permissions = {};
 try{
 	Permissions = require("./permissions.json");
@@ -123,6 +123,117 @@ var commands = {
 					text += a + " ";
 			}
 			msg.channel.sendMessage(text);
+		}
+	},
+	"permit": {
+		usage: "<command> <user> <0||1>",
+		description: "Grant or remove command permission to user",
+		process: function(bot, msg, suffix){
+			var args = suffix.split(' ');
+			if(args.length != 3){
+				msg.channel.sendMessage("Insufficient arguments my dude.");
+				return;
+			}
+			var cmd = args[0];
+			var user = args[1];
+			console.log(user);
+			var flag = args[2];
+
+			if(flag != 0 && flag != 1){
+				msg.channel.sendMessage("Flag should be 0 or 1");
+				return;
+			}
+
+			//Check for Command
+			if(!commands[cmd]){
+				msg.channel.sendMessage("Command " + cmd + " does not exist.");
+				return;
+			} 
+			
+			//Check for User
+			var userId = "";
+			if(user.startsWith('<@')){
+				userId = user.substr(2,user.length-3);
+				console.log(userId);
+				var ids = msg.channel.guild.members.filter((member) => member.user.id == userId).array();
+				if(ids.length != 1){
+					msg.channel.sendMessage(id.length + " users found for " + user);
+					return;
+				}
+			} else {
+				var users = msg.channel.guild.members.filter((member) => member.user.username == user).array();
+				if(users.length != 1){
+					msg.channel.sendMessage(users.length + " users found for " + user);
+					return;
+				}
+				userId = users[0].user.id;
+			}
+
+
+			if(userId == ""){
+				msg.channel.sendMessage("No id found for " + user);
+				return;
+			}
+
+			//Check flag
+			var verb;
+			if(flag == 1){
+				verb = "Granted";
+				flag = true;
+			} else {
+				verb = "Removed";
+				flag = false;
+			}
+
+			//Update permission
+			var perms = Permissions.users[userId];
+			Permissions.users[userId] = {};
+			if(perms){
+				Permissions.users[userId] = perms;
+			}
+			Permissions.users[userId][cmd] = flag;
+			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
+			msg.channel.sendMessage(verb + " permission for " + cmd + " to " + user);
+		}
+	},
+	"gpermit": {
+		usage: "<command> <0||1>",
+		description: "Grant or remove command permission to global",
+		process: function(bot,msg,suffix){
+			var args = suffix.split(' ');
+			if(args.length != 2){
+				msg.channel.sendMessage("Insufficient arguments my dude.");
+				return;
+			}
+			var cmd = args[0];
+			var flag = args[1];
+
+			if(flag != 0 && flag != 1){
+				msg.channel.sendMessage("Flag should be 0 or 1 plz");
+				return;
+			}
+
+			//Check for Command
+			if(!commands[cmd]){
+				msg.channel.sendMessage("Command " + cmd + " does not exist.");
+				return;
+			} 
+			console.log("Found command " + cmd);
+
+			//Check flag
+			var verb;
+			if(flag == 1){
+				verb = "Granted";
+				flag = true;
+			} else {
+				verb = "Removed";
+				flag = false;
+			}
+
+			//Update permission
+			Permissions.global[cmd] = flag;
+			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
+			msg.channel.sendMessage(verb + " permission for " + cmd + " to _all_");
 		}
 	},
 	"ping": {
@@ -408,7 +519,7 @@ function checkMessageForCommand(msg, isEdit) {
         		try{
         			cmd.process(bot,msg,suffix,isEdit);
         		} catch(e){
-        			var msgTxt = "command " + cmdTxt + " failed :(";
+        			var msgTxt = "command " + cmdTxt + " failed <:weenie:299962998695395348>";
         			if(Config.debug){
         				msgTxt += "\n" + e.stack;
         			}
