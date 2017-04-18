@@ -546,25 +546,25 @@ function checkMessageForCommand(msg, isEdit) {
         }
 
         if(sailorMode){
-        	//TODO
         	var words = msg.content.split(' ');
-        	if(words.length >= 5){
+        	if(words.length >= 3){
         		var counter = 0;
         		words.forEach(function(element){
-        			if(swears.indexOf(element) >= 0){
+        			if(swears.indexOf(element.toLowerCase()) >= 0){
         				counter++;
         			}
         		});
-        		if((counter / words.length) > .75){
-        			msg.delete(1000);
-        			msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
-        			return;
+        		if(counter > Config.maxSwears){
+        			console.log(counter);
+					msg.delete(1000);
+					msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
+					return;
         		}
         	}
         }
 
         if (msg.author != bot.user && msg.isMentioned(bot.user)) {
-        	msg.channel.sendMessage(msg.author + ", you called?");
+        	msg.channel.sendMessage(msg.author + ", may I take your order, weenie?");
         } else {
 
         }
