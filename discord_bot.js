@@ -332,6 +332,8 @@ var commands = {
 				case 1:
 				//Frakon
 				var count = parseInt(suffix,10);
+				count = (count > maxFrakons ? maxFrakons : count);
+
 				for(var i = 0; i<count; i++){
 					if(fraks.length + Config.frakon.length < 2000){
 						fraks += Config.frakon;
@@ -350,6 +352,9 @@ var commands = {
 				if(x > maxFrakons || y > maxFrakons){
 					msg.channel.sendMessage("_Too many Frakons. Only "+ maxFrakons+ " allowed._");
 				}
+				x = (x > maxFrakons ? maxFrakons : x);
+				y = (y > maxFrakons ? maxFrakons : y);
+
 				for(var i = 0; i<x; i++){
 					if(fraks.length + Config.frakon.length < 2000){
 						fraks += Config.frakon;
