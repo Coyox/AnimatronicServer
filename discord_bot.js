@@ -1,4 +1,5 @@
 var fs = require('fs');
+var Promise = require('promise');
 
 try {
 	var Discord = require("discord.js");
@@ -11,7 +12,59 @@ try {
 console.log("Starting DiscordBot\nNode version: " + process.version + "\nDiscord.js version: " + Discord.version);
 
 
+// Init AWS S3
+var AWS = require('aws-sdk');
+var s3 = new AWS.S3();
 
+function downloadConfig(config){
+	return new Promise(function (fulfill, reject){
+		s3.getObject({
+			Bucket: process.env.S3_BUCKET_NAME,
+			Key: config + '.json'
+		}, function(err, data){
+			if(err){
+				console.log(err);
+				reject(err);
+			} else {
+				console.log('Downloaded ' + config + '.json, size: ' + data.Body.length);
+				fulfill(JSON.parse(data.Body.toString()));
+			}
+		});
+	})
+}
+
+function uploadConfig(config){
+	var filename = './' + config + '.json';
+	var fileBuffer = require('fs').readFileSync(filename);
+	//var metaData = getContentTypeByFile(filename);
+
+	s3.putObject({
+		Bucket: process.env.S3_BUCKET_NAME,
+		Key: config + '.json',
+		Body: fileBuffer
+	}, function(err, data){
+		if(err){
+			console.log('File upload failed for ' + filename);
+			console.log(err);
+		} else {
+			console.log('Uploaded file ' + filename + ' to the cloud.');
+		}
+	});
+}
+
+var Config = downloadConfig('config');
+var aliases = downloadConfig('alias');
+var Permissions = downloadConfig('permissions');
+
+Promise.all([Config, aliases, Permissions]).then(values=>{
+	Config = values[0];
+	aliases = values[1];
+	Permissions = values[2];
+	run();
+});
+
+// Download 
+function run(){
 // Get authentication data
 try {
 	var AuthDetails = require("./auth.json");
@@ -22,13 +75,6 @@ try {
 
 // Load custom permissions
 var dangerousCommands = ["eval","pullanddeploy","setUsername", "permit", "gpermit"];
-var Permissions = {};
-try{
-	Permissions = require("./permissions.json");
-} catch(e){
-	Permissions.global = {};
-	Permissions.users = {};
-}
 
 for( var i=0; i<dangerousCommands.length;i++ ){
 	var cmd = dangerousCommands[i];
@@ -53,37 +99,28 @@ Permissions.checkPermission = function (user,permission){
 	} catch(e){}
 	return false;
 }
-fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
+//fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
 
 //load config data
-var Config = {};
-try{
-	Config = require("./config.json");
-} catch(e){ //no config file, use defaults
+if(Config.length <= 0){
 	Config.debug = false;
 	Config.commandPrefix = '!';
 	Config.maxFrakons = 15;
 	Config.admin = "";
-	try{
-		if(fs.lstatSync("./config.json").isFile()){
-			console.log("WARNING: config.json found but we couldn't read it!\n" + e.stack);
-		}
-	} catch(e2){
-		fs.writeFile("./config.json",JSON.stringify(Config,null,2));
-	}
 }
 if(!Config.hasOwnProperty("commandPrefix")){
 	Config.commandPrefix = '!';
 }
 
+
 var messagebox;
-var aliases;
+/*var aliases;
 try{
 	aliases = require("./alias.json");
 } catch(e) {
 	//No aliases defined
 	aliases = {};
-}
+}*/
 //custom
 var maxFrakons = Config.maxFrakons;
 var sailorMode = Config.sailorMode;
@@ -110,7 +147,9 @@ var commands = {
 				var command = args.shift();
 				aliases[name] = [command, args.join(" ")];
 				//now save the new alias
-				require("fs").writeFile("./alias.json",JSON.stringify(aliases,null,2), null);
+				require("fs").writeFile("./alias.json",JSON.stringify(aliases,null,2), function(){
+					uploadConfig('alias');
+				});
 				msg.channel.sendMessage("created alias " + name);
 			}
 		}
@@ -196,7 +235,10 @@ var commands = {
 				Permissions.users[userId] = perms;
 			}
 			Permissions.users[userId][cmd] = flag;
-			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
+			//TODO busted?
+			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), function(){
+				uploadConfig('permissions');
+			});
 			msg.channel.sendMessage(verb + " permission for " + cmd + " to " + user);
 		}
 	},
@@ -239,7 +281,9 @@ var commands = {
 
 			//Update permission
 			Permissions.global[cmd] = flag;
-			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
+			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), function(){
+				uploadConfig('permissions');
+			});
 			msg.channel.sendMessage(verb + " permission for " + cmd + " to _all_");
 		}
 	},
@@ -361,44 +405,44 @@ var commands = {
 					}
 				}
 				for(var i = 0; i<y; i++){
-    				msg.channel.sendMessage(fraks);
-    			}
+					msg.channel.sendMessage(fraks);
+				}
 				break;
 
 				default:
 				msg.channel.sendMessage("I don't even. Use !help you dingus.")
 			}
-    	}
-    },
-    "owpatch": {
-    	usage: "owpatch",
-    	description: "Link to the latest Overwatch patch notes",
-    	process: function(bot, msg, suffix){
-    		var url = "https://playoverwatch.com/en-us/game/patch-notes/pc/";
-    		msg.channel.sendMessage(url);
-    	}
-    },
-    "owstats": {
-    	usage: "owstats <BlizzID>",
-    	description: "Generates MasterOverwatch URL for Blizard ID",
-    	process: function(bot, msg, suffix){
-    		const regex = /^\w+[#]\d+$/g;
-    		if(regex.test(suffix)){
-    			var bID = suffix.replace("#", "-");
-    			msg.channel.sendMessage("https://masteroverwatch.com/profile/pc/us/" + bID);
-    		} else {
-    			msg.channel.sendMessage("I need the whole ID with the #, weenie.");
-    		}
-    	}
-    },
-    "sailormode": {
-    	usage: "sailormode",
-    	description: "Toggle sailor mode on or off",
-    	process: function(bot, msg, suffix){
-    		sailorMode = !sailorMode;
-    		msg.channel.sendMessage("Sailor mode is now " + sailorMode);
-    	}
-    }
+		}
+	},
+	"owpatch": {
+		usage: "owpatch",
+		description: "Link to the latest Overwatch patch notes",
+		process: function(bot, msg, suffix){
+			var url = "https://playoverwatch.com/en-us/game/patch-notes/pc/";
+			msg.channel.sendMessage(url);
+		}
+	},
+	"owstats": {
+		usage: "owstats <BlizzID>",
+		description: "Generates MasterOverwatch URL for Blizard ID",
+		process: function(bot, msg, suffix){
+			const regex = /^\w+[#]\d+$/g;
+			if(regex.test(suffix)){
+				var bID = suffix.replace("#", "-");
+				msg.channel.sendMessage("https://masteroverwatch.com/profile/pc/us/" + bID);
+			} else {
+				msg.channel.sendMessage("I need the whole ID with the #, weenie.");
+			}
+		}
+	},
+	"sailormode": {
+		usage: "sailormode",
+		description: "Toggle sailor mode on or off",
+		process: function(bot, msg, suffix){
+			sailorMode = !sailorMode;
+			msg.channel.sendMessage("Sailor mode is now " + sailorMode);
+		}
+	}
 };
 
 if(AuthDetails.hasOwnProperty("client_id")){
@@ -430,9 +474,11 @@ try{
 	//no stored messages
 	messagebox = {};
 }
+
 function updateMessagebox(){
 	require("fs").writeFile("./messagebox.json",JSON.stringify(messagebox,null,2), null);
 }
+
 
 var bot = new Discord.Client();
 
@@ -561,9 +607,9 @@ function checkMessageForCommand(msg, isEdit) {
         		});
         		if(counter > Config.maxSwears){
         			console.log(counter);
-					msg.delete(1000);
-					msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
-					return;
+        			msg.delete(1000);
+        			msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
+        			return;
         		}
         	}
         }
@@ -617,4 +663,6 @@ if(AuthDetails.bot_token){
 	bot.login(AuthDetails.bot_token);
 } else {
 	console.log("Logging in with user credentials is no longer supported!\nYou can use token based log in with a user account, see\nhttps://discord.js.org/#/docs/main/master/general/updating");
+}
+
 }
