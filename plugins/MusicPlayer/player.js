@@ -10,7 +10,8 @@ exports.commands = [
 	"dequeue",
 	"pause",
 	"resume",
-	"volume"
+	"volume",
+	"stop"
 ]
 
 let options = false;
@@ -280,6 +281,22 @@ exports.volume = {
 				}
 			}
 		}
+	}
+}
+
+exports.stop = {
+	description: "Removes all entries from the queue and stops playback",
+	process: function(client, msg, suffix) {
+		const voiceConnection = client.voiceConnections.get(msg.guild.id);
+		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+
+		const queue = getQueue(msg.guild.id);
+		if(queue.length > 0){
+			queue.splice(0);
+		}
+
+		voiceConnection.player.dispatcher.end();
+		return msg.channel.sendMessage(wrap('Queue has been cleared.'));
 	}
 }
 
