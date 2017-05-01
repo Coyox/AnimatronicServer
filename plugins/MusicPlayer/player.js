@@ -1,5 +1,8 @@
 const YoutubeDL = require('youtube-dl');
 const Request = require('request');
+
+var defaultVolume = 20;
+
 exports.commands = [
 	"play",
 	"skip",
@@ -325,6 +328,7 @@ function executeQueue(client, msg, queue) {
 			// Play the video.
 			msg.channel.sendMessage( wrap('Now Playing: ' + video.title)).then((cur) => {
 				const dispatcher = connection.playStream(Request(video.url));
+				dispatcher.setVolumeLogarithmic(defaultVolume/100.0);
 				//dispatcher.then(intent => {
 					dispatcher.on('debug',(i)=>console.log("debug: " + i));
 					// Catch errors in the connection.

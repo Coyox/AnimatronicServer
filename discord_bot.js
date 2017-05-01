@@ -154,6 +154,22 @@ var commands = {
 			}
 		}
 	},
+	"ralias": {
+		usage: "<alias>",
+		description: "Removes an alias command.",
+		process: function(bot, msg, suffix){
+			var name = suffix.split(" ")[0];
+			if(aliases[suffix]){
+				delete aliases[suffix];
+				require("fs").writeFile("./alias.json",JSON.stringify(aliases,null,2), function(){
+					uploadConfig('alias');
+				});
+				msg.channel.sendMessage("Deleted alias " + name + ".");
+			} else {
+				msg.channel.sendMessage("No alias " + name + " found.");
+			}
+		}
+	},
 	"aliases": {
 		description: "lists all recorded aliases",
 		process: function(bot, msg, suffix) {
