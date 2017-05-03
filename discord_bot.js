@@ -495,9 +495,11 @@ var commands = {
 			switch(data["weather"][0]["main"].toLowerCase()){
 				case "clear":
 					emoji = " :sunny:";
+					break;
 				case "rain":
 				case "drizzle":
 					emoji = " :cloud_rain:";
+					break;
 				default:
 					emoji = " :shrug:";
 			}
