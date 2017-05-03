@@ -473,7 +473,7 @@ var commands = {
 		{
 			query = params[0]+","+params[1];
 		}
-		request("api.openweathermap.org/data/2.5/weather?q="+query+"&APPID=e773267f853c5a6c85d3d0ab3325eabd", function(err, res, body) {
+		request("api.openweathermap.org/data/2.5/weather?q="+query+"&APPID="+AuthDetails.weather_key, function(err, res, body) {
 			var data, error;
 			try {
 				data = JSON.parse(body);
