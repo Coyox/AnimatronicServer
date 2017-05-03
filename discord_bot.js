@@ -498,7 +498,7 @@ var commands = {
 				case "rain":
 				case "drizzle":
 					emoji = " :cloud_rain:";
-				case default:
+				default:
 					emoji = " :shrug:";
 			}
 			var weather = "Weather for " + data["name"] + ":\n" +
