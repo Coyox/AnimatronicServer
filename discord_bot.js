@@ -466,7 +466,7 @@ var commands = {
 		// query = CITY,COUNTRYCODE
 		// units = IMPERIAL||METRIC
 		var req = "http://api.openweathermap.org/data/2.5/weather?q="+query+"&units="+Config.weatherUnits+"&APPID="+
-			AuthDetails.weather_key;
+			process.env.OPENWEATHERMAP_KEY;
 		console.log(req);
 		request(req, function(err, res, body) {
 			if(err){
@@ -497,7 +497,9 @@ var commands = {
 					emoji = " :sunny:";
 				case "rain":
 				case "drizzle":
-					emoji = " :cloud_rain:"
+					emoji = " :cloud_rain:";
+				case default:
+					emoji = " :shrug:";
 			}
 			var weather = "Weather for " + data["name"] + ":\n" +
 				data["weather"][0]["description"] + emoji + "\n" +
