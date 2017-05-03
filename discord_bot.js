@@ -463,38 +463,37 @@ var commands = {
 		usage: "weather <city> <country code>",
     	description: "Get the weather of a city",
     	process: function(bot, msg, suffix){
-		var params = suffix.split(" ");
-		var query = "";
-		if(params.length == 1)
-		{
-			query = params[0];
-		}
-		else
-		{
-			query = params[0]+","+params[1];
-		}
-		request("api.openweathermap.org/data/2.5/weather?q="+query+"&APPID="+AuthDetails.weather_key, function(err, res, body) {
-			var data, error;
-			try {
-				data = JSON.parse(body);
-			} catch (error) {
-				console.log(error)
-				return;
+			var params = suffix.split(" ");
+			var query = "";
+			if(params.length == 1)
+			{
+				query = params[0];
 			}
-			if(!data){
-				console.log(data);
-				msg.channel.sendMessage( "Error:\n" + JSON.stringify(data));
-				return;
+			else
+			{
+				query = params[0]+","+params[1];
 			}
-			else if (!data.items || data.items.length == 0){
-				console.log(data);
-				msg.channel.sendMessage( "No result for '" + args + "'");
-				return;
-			}
-			var randResult = data.items[0];
-			msg.channel.sendMessage( randResult.title + '\n' + randResult.link);
-		});
-    		msg.channel.sendMessage("Sailor mode is now " + sailorMode);
+		request("http://api.openweathermap.org/data/2.5/weather?q="+query+"&APPID="+AuthDetails.weather_key, function(err, res, body) {
+				var data, error;
+				try {
+					data = JSON.parse(body);
+				} catch (error) {
+					console.log(error)
+					return;
+				}
+				if(!data){
+					console.log(data);
+					msg.channel.sendMessage( "Error:\n" + JSON.stringify(data));
+					return;
+				}
+				else if (!data.items || data.items.length == 0){
+					console.log(data);
+					msg.channel.sendMessage( "No result for '" + args + "'");
+					return;
+				}
+				var randResult = data.items[0];
+				msg.channel.sendMessage( randResult.title + '\n' + randResult.link);
+			});
     	}
 	}
 };
