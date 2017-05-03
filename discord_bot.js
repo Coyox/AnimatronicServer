@@ -1,5 +1,8 @@
+// Init Requirements
+var env = require('dotenv').config();
 var fs = require('fs');
 var Promise = require('promise');
+var request = require('request');
 
 try {
 	var Discord = require("discord.js");
@@ -51,7 +54,7 @@ function uploadConfig(config){
 		}
 	});
 }
-
+// Load configuration and other assets
 var Config = downloadConfig('config');
 var aliases = downloadConfig('alias');
 var Permissions = downloadConfig('permissions');
@@ -63,7 +66,7 @@ Promise.all([Config, aliases, Permissions]).then(values=>{
 	run();
 });
 
-// Download 
+
 function run(){
 // Get authentication data
 try {
@@ -73,7 +76,7 @@ try {
 	process.exit();
 }
 
-// Load custom permissions
+// Load permissions
 var dangerousCommands = ["eval","pullanddeploy","setUsername", "permit", "gpermit"];
 
 for( var i=0; i<dangerousCommands.length;i++ ){
@@ -99,9 +102,10 @@ Permissions.checkPermission = function (user,permission){
 	} catch(e){}
 	return false;
 }
-//fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2));
 
-//load config data
+
+// Load config data
+// TODO: Use Config data and update Config.json when changing values
 if(Config.length <= 0){
 	Config.debug = false;
 	Config.commandPrefix = '!';
@@ -112,16 +116,7 @@ if(!Config.hasOwnProperty("commandPrefix")){
 	Config.commandPrefix = '!';
 }
 
-
 var messagebox;
-/*var aliases;
-try{
-	aliases = require("./alias.json");
-} catch(e) {
-	//No aliases defined
-	aliases = {};
-}*/
-//custom
 var maxFrakons = Config.maxFrakons;
 var sailorMode = Config.sailorMode;
 
@@ -251,7 +246,6 @@ var commands = {
 				Permissions.users[userId] = perms;
 			}
 			Permissions.users[userId][cmd] = flag;
-			//TODO busted?
 			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), function(){
 				uploadConfig('permissions');
 			});
@@ -398,8 +392,7 @@ var commands = {
 					if(fraks.length + Config.frakon.length < 2000){
 						fraks += Config.frakon;
 					} else {
-						//msg.channel.sendMessage(fraks);
-						fraks += Config.frakon+"\n";
+						msg.channel.sendMessage(fraks);
 						continue;
 					}
 				}
@@ -465,36 +458,52 @@ var commands = {
     	process: function(bot, msg, suffix){
 		var params = suffix.split(" ");
 		var query = "";
-		if(params.length == 1)
-		{
+		if(params.length == 1){
 			query = params[0];
-		}
-		else
-		{
+		} else {
 			query = params[0]+","+params[1];
 		}
-		request("api.openweathermap.org/data/2.5/weather?q="+query+"&APPID="+AuthDetails.weather_key, function(err, res, body) {
-			var data, error;
+		// query = CITY,COUNTRYCODE
+		// units = IMPERIAL||METRIC
+		var req = "http://api.openweathermap.org/data/2.5/weather?q="+query+"&units="+Config.weatherUnits+"&APPID="+
+			AuthDetails.weather_key;
+		console.log(req);
+		request(req, function(err, res, body) {
+			if(err){
+				console.log(err);
+			}
+
+			var data;
 			try {
-				data = JSON.parse(body);
-			} catch (error) {
-				console.log(error)
+				data = JSON.parse(body.toString());
+			} catch (e) {
+				console.log(e)
 				return;
 			}
 			if(!data){
-				console.log(data);
-				msg.channel.sendMessage( "Error:\n" + JSON.stringify(data));
+				console.log(err);
+				msg.channel.sendMessage( "Error getting weather");
 				return;
 			}
-			else if (!data.items || data.items.length == 0){
+			else if (!data["name"] || !data["weather"]){
 				console.log(data);
-				msg.channel.sendMessage( "No result for '" + args + "'");
+				msg.channel.sendMessage( "No result for '" + query + "'");
 				return;
 			}
-			var randResult = data.items[0];
-			msg.channel.sendMessage( randResult.title + '\n' + randResult.link);
+			var emoji = "";
+			console.log(data);
+			switch(data["weather"][0]["main"].toLowerCase()){
+				case "clear":
+					emoji = " :sunny:";
+				case "rain":
+				case "drizzle":
+					emoji = " :cloud_rain:"
+			}
+			var weather = "Weather for " + data["name"] + ":\n" +
+				data["weather"][0]["description"] + emoji + "\n" +
+				"Temperature: " + data["main"]["temp"] + "°C";
+			msg.channel.sendMessage(weather);
 		});
-    		msg.channel.sendMessage("Sailor mode is now " + sailorMode);
     	}
 	}
 };
