@@ -1,5 +1,8 @@
 const YoutubeDL = require('youtube-dl');
 const Request = require('request');
+
+var defaultVolume = 20;
+
 exports.commands = [
 	"play",
 	"skip",
@@ -7,7 +10,8 @@ exports.commands = [
 	"dequeue",
 	"pause",
 	"resume",
-	"volume"
+	"volume",
+	"stop"
 ]
 
 let options = false;
@@ -280,6 +284,22 @@ exports.volume = {
 	}
 }
 
+exports.stop = {
+	description: "Removes all entries from the queue and stops playback",
+	process: function(client, msg, suffix) {
+		const voiceConnection = client.voiceConnections.get(msg.guild.id);
+		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+
+		const queue = getQueue(msg.guild.id);
+		if(queue.length > 0){
+			queue.splice(0);
+		}
+
+		voiceConnection.player.dispatcher.end();
+		return msg.channel.sendMessage(wrap('Queue has been cleared.'));
+	}
+}
+
 	/*
 	 * Execute the queue.
 	 *
@@ -325,6 +345,7 @@ function executeQueue(client, msg, queue) {
 			// Play the video.
 			msg.channel.sendMessage( wrap('Now Playing: ' + video.title)).then((cur) => {
 				const dispatcher = connection.playStream(Request(video.url));
+				dispatcher.setVolumeLogarithmic(defaultVolume/100.0);
 				//dispatcher.then(intent => {
 					dispatcher.on('debug',(i)=>console.log("debug: " + i));
 					// Catch errors in the connection.
