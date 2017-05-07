@@ -412,6 +412,10 @@ var commands = {
 					if(fraks.length + Config.frakon.length < 2000){
 						fraks += Config.frakon;
 					}
+					else
+					{
+					 fraks += Config.frakon+"\n";
+					}
 				}
 				for(var i = 0; i<y; i++){
 					msg.channel.sendMessage(fraks);
