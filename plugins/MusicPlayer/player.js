@@ -1,7 +1,7 @@
 const YoutubeDL = require('youtube-dl');
 const Request = require('request');
 
-var defaultVolume = 20;
+var defaultVolume = 30;
 
 exports.commands = [
 	"play",
