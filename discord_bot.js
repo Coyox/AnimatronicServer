@@ -69,7 +69,7 @@ Promise.all([Config, aliases, Permissions]).then(values=>{
 
 function run(){
 // Load permissions
-var dangerousCommands = ["eval","pullanddeploy","setUsername", "permit", "gpermit"];
+var dangerousCommands = ["eval","pullanddeploy","setUsername", "permit", "gpermit", "setkey", "getkey"];
 
 for( var i=0; i<dangerousCommands.length;i++ ){
 	var cmd = dangerousCommands[i];
@@ -109,9 +109,6 @@ if(!Config.hasOwnProperty("commandPrefix")){
 }
 
 var messagebox;
-var maxFrakons = Config.maxFrakons;
-var sailorMode = Config.sailorMode;
-
 var Quote = {};
 Quote = require("./quote.json");
 
@@ -160,12 +157,70 @@ var commands = {
 	"aliases": {
 		description: "lists all recorded aliases",
 		process: function(bot, msg, suffix) {
-			var text = "current aliases:\n";
+			var text = "Current aliases:\n";
 			for(var a in aliases){
 				if(typeof a === 'string')
 					text += a + " ";
 			}
 			msg.channel.sendMessage(text);
+		}
+	},
+	"getkey": {
+		usage: "<key>",
+		description: "Get the value of a configuration key if it exists",
+		process: function(bot, msg, suffix){
+			var text = "Current keys:\n";
+			var args = suffix.split(' ');
+			switch(args[0].length){
+				case 0:
+					for(var c in Config){
+						var cmd = c + ": " + Config[c] + "\n";
+						if (text.length + cmd.length > 2000){
+							msg.channel.sendMessage(text);
+							text = "";
+						} else 
+							text += cmd;
+					}
+					break;
+				default:
+					if(Config[args[0]]){
+						text += args[0] + ": " + Config[args[0]];
+					} else 
+						text = "No key found";
+					break;
+			}
+			// Send out message
+			if(text.length > 0)
+				msg.channel.sendMessage(text);
+		}
+	},
+	"setkey": {
+		usage: "<key> <value>",
+		description: "Add or update the value of a configuration entry",
+		process: function(bot, msg, suffix) {
+			var args = suffix.split(' ');
+			switch(args.length){
+				case 0:
+				case 1:
+					msg.channel.sendMessage("Not enough arguments.");
+					return;
+				case 2:
+					var key = args[0];
+					var val = args[1];
+					if(Config[key]){
+						if(val.length > 0){
+							Config[key] = val;
+							require("fs").writeFile("./Config.json",JSON.stringify(Config,null,2), function(){
+								uploadConfig('config');
+							});
+							msg.channel.sendMessage("Set " + key + " to " + val);
+						}
+					}
+					break;
+				default:
+					msg.channel.sendMessage("Too many arguments.");
+					return;
+			}
 		}
 	},
 	"permit": {
@@ -373,6 +428,7 @@ var commands = {
 		process: function(bot,msg,suffix){
 			var args = suffix.split(' ');
 			var fraks = "";
+			var maxFrakons = Config.maxFrakons;
 			//var count = 0;
 			switch(args.length){
 				case 1:
@@ -444,8 +500,11 @@ var commands = {
 		usage: "sailormode",
 		description: "Toggle sailor mode on or off",
 		process: function(bot, msg, suffix){
-			sailorMode = !sailorMode;
-			msg.channel.sendMessage("Sailor mode is now " + sailorMode);
+			Config["sailorMode"] = !Config["sailorMode"];
+			require("fs").writeFile("./Config.json",JSON.stringify(Config,null,2), function(){
+				uploadConfig('config');
+			});
+			msg.channel.sendMessage("Sailor mode is now " + Config.sailorMode);
 		}
 	},
 	"weather" : {
@@ -668,7 +727,7 @@ function checkMessageForCommand(msg, isEdit) {
         	return;
         }
 
-        if(sailorMode){
+        if(Config.sailorMode){
         	var words = msg.content.split(' ');
         	if(words.length >= 3){
         		var counter = 0;
