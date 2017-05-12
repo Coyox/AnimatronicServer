@@ -11,8 +11,8 @@ exports.twitch = {
 	usage: "<stream>",
 	description: "checks if the given stream is online",
 	process: function(bot,msg,suffix){
-		require("request")("https://api.twitch.tv/kraken/streams/"+suffix,
-		function(err,res,body){
+		var req = "https://api.twitch.tv/kraken/streams/"+suffix+"?client_id="+process.env.TWITCH_CLIENT_ID;
+		require("request")(req, function(err,res,body){
 			var stream = JSON.parse(body);
 			if(stream.stream){
 				msg.channel.sendMessage( suffix
