@@ -18,8 +18,7 @@ exports.twitch = {
 				msg.channel.sendMessage( suffix
 					+" is online, playing "
 					+stream.stream.game
-					+"\n"+stream.stream.channel.status
-					+"\n"+stream.stream.preview.large)
+					+"\n" + stream.stream.channel.url)
 			}else{
 				msg.channel.sendMessage( suffix+" is offline")
 			}

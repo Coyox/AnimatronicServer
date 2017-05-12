@@ -2,7 +2,7 @@
 var env = require('dotenv').config();
 var fs = require('fs');
 var Promise = require('promise');
-var request = require('request');
+var request = require('request-promise');
 
 try {
 	var Discord = require("discord.js");
@@ -620,7 +620,7 @@ function checkTwitch(){
 		urls.push(req);
 		usernames.push(username);
 	}
-
+	
 	var promises = urls.map(url => request(url));
 
 	Promise.all(promises).then(data => {
@@ -631,11 +631,10 @@ function checkTwitch(){
 				hook.sendMessage( stream.stream.channel.display_name
 					+" is online, playing "
 					+stream.stream.game
-					+"\n"+stream.stream.channel.status
-					+"\n"+stream.stream.preview.large)
+					+"\n"+stream.stream.channel.url)
 				twitch[usernames[i]] = true;
 			} else {
-				console.log(usernames[i] + " is offline");
+				//console.log(usernames[i] + " is offline");
 				twitch[usernames[i]] = false;
 			}
 		}
@@ -657,7 +656,7 @@ bot.on("ready", function () {
 		if(twitch){
 			setInterval(function(){
 				checkTwitch();
-			},180000);	
+			},90000);	
 		}
 	}
 });
