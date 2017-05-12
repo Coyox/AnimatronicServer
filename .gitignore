@@ -34,3 +34,4 @@ permissions.json
 messagebox.json
 config.json
 .env
+twitch.json
