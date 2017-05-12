@@ -58,11 +58,13 @@ function uploadConfig(config){
 var Config = downloadConfig('config');
 var aliases = downloadConfig('alias');
 var Permissions = downloadConfig('permissions');
+var twitch = downloadConfig('twitch');
 
-Promise.all([Config, aliases, Permissions]).then(values=>{
+Promise.all([Config, aliases, Permissions, twitch]).then(values=>{
 	Config = values[0];
 	aliases = values[1];
 	Permissions = values[2];
+	twitch = values[3];
 	run();
 });
 
@@ -610,18 +612,57 @@ function updateMessagebox(){
 	require("fs").writeFile("./messagebox.json",JSON.stringify(messagebox,null,2), null);
 }
 
+function checkTwitch(){
+	var urls = [];
+	var usernames = [];
+	for(var username in twitch){
+		var req = "https://api.twitch.tv/kraken/streams/"+username+"?client_id="+process.env.TWITCH_CLIENT_ID;
+		urls.push(req);
+		usernames.push(username);
+	}
+
+	var promises = urls.map(url => request(url));
+
+	Promise.all(promises).then(data => {
+		for(var i=0; i < data.length; i++){
+			var stream = JSON.parse(data[i]);
+			if(stream.stream){
+				if(twitch[usernames[i]]) continue;
+				hook.sendMessage( stream.stream.channel.display_name
+					+" is online, playing "
+					+stream.stream.game
+					+"\n"+stream.stream.channel.status
+					+"\n"+stream.stream.preview.large)
+				twitch[usernames[i]] = true;
+			} else {
+				console.log(usernames[i] + " is offline");
+				twitch[usernames[i]] = false;
+			}
+		}
+	});
+}
+
+
 
 var bot = new Discord.Client();
+var hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET);
 
 bot.on("ready", function () {
 	console.log("Logged in! Serving in " + bot.guilds.array().length + " servers");
 	require("./plugins.js").init();
 	console.log("type "+Config.commandPrefix+"help in Discord for a commands list.");
-	bot.user.setGame(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers"); 
+	bot.user.setGame(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers");
+	// Set Twitch checker if hook and twitch config exist 
+	if(hook){
+		if(twitch){
+			setInterval(function(){
+				checkTwitch();
+			},180000);	
+		}
+	}
 });
 
 bot.on("disconnected", function () {
-
 	console.log("Disconnected!");
 	process.exit(1); //exit node.js with an error
 
