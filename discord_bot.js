@@ -652,13 +652,13 @@ bot.on("ready", function () {
 	console.log("type "+Config.commandPrefix+"help in Discord for a commands list.");
 	bot.user.setGame(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers");
 	// Set Twitch checker if hook and twitch config exist 
-	if(hook){
-		if(twitch){
-			setInterval(function(){
-				checkTwitch();
-			},90000);	
-		}
-	}
+	//if(hook){
+	//	if(twitch){
+	//		setInterval(function(){
+	//			checkTwitch();
+	//		},90000);	
+	//	}
+	//}
 });
 
 bot.on("disconnected", function () {
