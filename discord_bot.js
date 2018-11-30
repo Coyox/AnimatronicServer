@@ -652,7 +652,7 @@ function updateMessagebox(){
 }
 
 var twitchUrl = "https://twitch.tv/";
-var twitchOnlineMessage = " is now live on Twitch!\r\n" + twitchUrl;
+var twitchOnlineMessage = " is now live on Twitch!\r\n";
 
 function checkTwitch(twitchfile){
 	var requests = [];
@@ -685,7 +685,9 @@ function checkTwitch(twitchfile){
 			// Keep track of who we know is online so we don't spam the channel
 			if(!twitchfile[user_name].online){
 				twitchfile[user_name].online = true;
-				bot.channels.get(twitchfile[user_name].channel).sendMessage(user_name + twitchOnlineMessage + user_name);
+				var title = stream.data[i].title + "\r\n";
+				bot.channels.get(twitchfile[user_name].channel).sendMessage(user_name + twitchOnlineMessage +
+				title + twitchUrl + user_name);
 			}
 		}
 		// Set any users that did not return stream data to offline
