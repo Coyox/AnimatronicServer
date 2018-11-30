@@ -4,8 +4,6 @@ var fs = require('fs');
 var Promise = require('promise');
 var request = require('request-promise');
 var Subtract = require('array-subtract');
-const format = require('string-format');
-format.extend(String.prototype, {});
 
 try {
 	var Discord = require("discord.js");
