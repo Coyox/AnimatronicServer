@@ -3,6 +3,9 @@ var env = require('dotenv').config();
 var fs = require('fs');
 var Promise = require('promise');
 var request = require('request-promise');
+var Subtract = require('array-subtract');
+const format = require('string-format');
+format.extend(String.prototype, {});
 
 try {
 	var Discord = require("discord.js");
@@ -509,6 +512,44 @@ var commands = {
 			msg.channel.sendMessage("Sailor mode is now " + Config.sailorMode);
 		}
 	},
+	"twitch":{
+		usage: "twitch <username>",
+		description: "Notify the server in the channel this command was run from when <username> goes live on Twitch",
+		process: function(bot,msg,suffix){
+			var args = suffix.split(' ');
+			if(args.length == 1){
+				var user = args.shift();
+				twitch[user] = {
+					"online": false,
+					"channel": msg.channel.id
+				}
+				require("fs").writeFile("./twitch.json",JSON.stringify(twitch,null,2), function(){
+					uploadConfig('twitch');
+				});
+				msg.channel.sendMessage("Set Twitch watcher on " + user + ". Notification will appear in " +
+					msg.channel.name);				
+			} else {	
+				msg.channel.sendMessage("Please specify a Twitch username and nothing else!");
+			}
+		}
+	},
+	"rtwitch":{
+		usage: "rtwitch <username>",
+		description: "Removes a Twitch user from the Twitch notifier",
+		process: function(bot,msg,suffix){
+			var args = suffix.split(' ');
+			if(args.length == 1){
+				var user = args.shift();
+				delete twitch[user];
+				require("fs").writeFile("./twitch.json",JSON.stringify(twitch,null,2), function(){
+					uploadConfig('twitch');
+				});
+				msg.channel.sendMessage("Removed " + user + " from Twitch notifier.");				
+			} else {	
+				msg.channel.sendMessage("Please specify a Twitch username and nothing else!");
+			}
+		}
+	},
 	"weather" : {
 		usage: "weather <city> <country code>",
     	description: "Get the weather of a city",
@@ -612,31 +653,49 @@ function updateMessagebox(){
 	require("fs").writeFile("./messagebox.json",JSON.stringify(messagebox,null,2), null);
 }
 
-function checkTwitch(){
-	var urls = [];
+var twitchUrl = "https://twitch.tv/";
+var twitchOnlineMessage = " is now live on Twitch!\r\n" + twitchUrl;
+
+function checkTwitch(twitchfile){
+	var requests = [];
 	var usernames = [];
-	for(var username in twitch){
-		var req = "https://api.twitch.tv/kraken/streams/"+username+"?client_id="+process.env.TWITCH_CLIENT_ID;
-		urls.push(req);
+	var req = "https://api.twitch.tv/helix/streams";
+	for(var username in twitchfile){
 		usernames.push(username);
 	}
-	
-	var promises = urls.map(url => request(url));
+	console.log(usernames);
+	var options = {
+		uri: req,
+		qs:{
+			"user_login": usernames
+		},
+		headers:{
+			"Client-ID": process.env.TWITCH_CLIENT_ID
+		},
+		json: false
+	}
 
+	requests.push(options);
+	
+	var promises = requests.map(options => request(options));
+	var returned = [];
 	Promise.all(promises).then(data => {
-		for(var i=0; i < data.length; i++){
-			var stream = JSON.parse(data[i]);
-			if(stream.stream){
-				if(twitch[usernames[i]]) continue;
-				hook.sendMessage( stream.stream.channel.display_name
-					+" is online, playing "
-					+stream.stream.game
-					+"\n"+stream.stream.channel.url)
-				twitch[usernames[i]] = true;
-			} else {
-				//console.log(usernames[i] + " is offline");
-				twitch[usernames[i]] = false;
+		var stream = JSON.parse(data);
+		// Loop through each stream returned
+		for(var i=0; i < stream.data.length; i++){
+			var user_name = stream.data[i].user_name;
+			returned.push(user_name);
+			// Keep track of who we know is online so we don't spam the channel
+			if(!twitchfile[user_name].online){
+				twitchfile[user_name].online = true;
+				bot.channels.get(twitchfile[user_name].channel).sendMessage(user_name + twitchOnlineMessage + user_name);
 			}
+		}
+		// Set any users that did not return stream data to offline
+		var subtract = new Subtract((a,b) => {return a === b})
+		var offline = subtract.sub(usernames, returned);
+		for(var user_name in offline){
+			twitch[user_name].online = false;
 		}
 	});
 }
@@ -651,14 +710,12 @@ bot.on("ready", function () {
 	require("./plugins.js").init();
 	console.log("type "+Config.commandPrefix+"help in Discord for a commands list.");
 	bot.user.setGame(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers");
-	// Set Twitch checker if hook and twitch config exist 
-	//if(hook){
-	//	if(twitch){
-	//		setInterval(function(){
-	//			checkTwitch();
-	//		},90000);	
-	//	}
-	//}
+	// Set Twitch checker if twitch config exists
+	if(twitch){
+		setInterval(function(){
+			checkTwitch(twitch);
+		},90000);
+	}
 });
 
 bot.on("disconnected", function () {
