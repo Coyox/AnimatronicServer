@@ -661,7 +661,6 @@ function checkTwitch(twitchfile){
 	for(var username in twitchfile){
 		usernames.push(username);
 	}
-	console.log(usernames);
 	var options = {
 		uri: req,
 		qs:{
