@@ -15,7 +15,6 @@
     "promise": "*",
     "request-promise": "*",
     "array-subtract": "*",
-    "string-format": "*",
     "erlpack": "^0.1.2",
     "feedparser": "1.1.x",
     "html-to-text": "1.5.x",
