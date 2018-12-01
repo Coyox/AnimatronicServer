@@ -517,7 +517,7 @@ var commands = {
 			var args = suffix.split(' ');
 			if(args.length == 1){
 				var user = args.shift();
-				twitch[user] = {
+				twitch[user.toUpperCase()] = {
 					"online": false,
 					"channel": msg.channel.id
 				}
@@ -538,7 +538,7 @@ var commands = {
 			var args = suffix.split(' ');
 			if(args.length == 1){
 				var user = args.shift();
-				delete twitch[user];
+				delete twitch[user.toUpperCase()];
 				require("fs").writeFile("./twitch.json",JSON.stringify(twitch,null,2), function(){
 					uploadConfig('twitch');
 				});
@@ -681,12 +681,13 @@ function checkTwitch(twitchfile){
 		// Loop through each stream returned
 		for(var i=0; i < stream.data.length; i++){
 			var user_name = stream.data[i].user_name;
-			returned.push(user_name);
+			usernameUpper = user_name.toUpperCase();
+			returned.push(usernameUpper);
 			// Keep track of who we know is online so we don't spam the channel
-			if(!twitchfile[user_name].online){
-				twitchfile[user_name].online = true;
+			if(!twitchfile[usernameUpper].online){
+				twitchfile[usernameUpper].online = true;
 				var title = stream.data[i].title + "\r\n";
-				bot.channels.get(twitchfile[user_name].channel).sendMessage(user_name + twitchOnlineMessage +
+				bot.channels.get(twitchfile[usernameUpper].channel).sendMessage(user_name + twitchOnlineMessage +
 				title + twitchUrl + user_name);
 			}
 		}
