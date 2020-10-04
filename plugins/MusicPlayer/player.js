@@ -48,21 +48,21 @@ exports.play = {
 		if(isEdit) return;
 		var arr = msg.guild.channels.filter((v)=>v.type == "voice").filter((v)=>v.members.has(msg.author.id));
 		// Make sure the user is in a voice channel.
-		if (arr.length == 0) return msg.channel.sendMessage( wrap('You\'re not in a voice channel.'));
+		if (arr.length == 0) return msg.channel.send( wrap('You\'re not in a voice channel.'));
 
 		// Make sure the suffix exists.
-		if (!suffix) return msg.channel.sendMessage( wrap('No video specified!'));
+		if (!suffix) return msg.channel.send( wrap('No video specified!'));
 
 		// Get the queue.
 		const queue = getQueue(msg.guild.id);
 
 		// Check if the queue has reached its maximum size.
 		if (queue.length >= MAX_QUEUE_SIZE) {
-			return msg.channel.sendMessage( wrap('Maximum queue size reached!'));
+			return msg.channel.send( wrap('Maximum queue size reached!'));
 		}
 
 		// Get the video information.
-		msg.channel.sendMessage( wrap('Searching...')).then(response => {
+		msg.channel.send( wrap('Searching...')).then(response => {
 			// If the suffix doesn't start with 'http', assume it's a search.
 			if (!suffix.toLowerCase().startsWith('http')) {
 				suffix = 'gvsearch1:' + suffix;
@@ -101,7 +101,7 @@ exports.skip = {
 	process:function(client, msg, suffix) {
 		// Get the voice connection.
 		const voiceConnection = client.voiceConnections.get(msg.guild.id);
-		if (voiceConnection === null) return msg.channel.sendMessage( wrap('No music being played.'));
+		if (voiceConnection === null) return msg.channel.send( wrap('No music being played.'));
 
 		// Get the queue.
 		const queue = getQueue(msg.guild.id);
@@ -120,7 +120,7 @@ exports.skip = {
 		if (voiceConnection.player.dispatcher) voiceConnection.player.dispatcher.resume();
 		voiceConnection.player.dispatcher.end();
 
-		msg.channel.sendMessage( wrap('Skipped ' + toSkip + '!'));
+		msg.channel.send( wrap('Skipped ' + toSkip + '!'));
 	}
 }
 
@@ -149,7 +149,7 @@ exports.queue = {
 		}
 
 		// Send the queue and status.
-		msg.channel.sendMessage( wrap('Queue (' + queueStatus + '):\n' + text));
+		msg.channel.send( wrap('Queue (' + queueStatus + '):\n' + text));
 	}
 }
 
@@ -170,14 +170,14 @@ exports.dequeue = {
 
 		// Make sure the suffix exists.
 		if (!suffix)
-			return msg.channel.sendMessage( wrap('You need to specify an index to remove from the queue.  ' + usageString));
+			return msg.channel.send( wrap('You need to specify an index to remove from the queue.  ' + usageString));
 
 		// Get the arguments
 		var split = suffix.split(/(\s+)/);
 
 		// Make sure there's only 1 index 
 		if (split.length > 1)
-			return msg.channel.sendMessage( wrap('There are too many arguments.  ' + usageString));
+			return msg.channel.send( wrap('There are too many arguments.  ' + usageString));
 		
 		// Remove the index
 		var index = parseInt(split[0]);
@@ -199,14 +199,14 @@ exports.dequeue = {
 					queue.splice(index, 1);
 				}				
 			} else {
-				return msg.channel.sendMessage( wrap('The index is out of range.  ' + usageString));
+				return msg.channel.send( wrap('The index is out of range.  ' + usageString));
 			}
 		} else {
-			return msg.channel.sendMessage( wrap('That index isn\'t a number.  ' + usageString));
+			return msg.channel.send( wrap('That index isn\'t a number.  ' + usageString));
 		}
 		
 		// Send the queue and status.
-		msg.channel.sendMessage( wrap('Removed \'' + songRemoved + '\' (index ' + split[0] + ') from the queue.'));
+		msg.channel.send( wrap('Removed \'' + songRemoved + '\' (index ' + split[0] + ') from the queue.'));
 	}
 }
 
@@ -221,10 +221,10 @@ exports.pause = {
 	process: function(client, msg, suffix) {
 		// Get the voice connection.
 		const voiceConnection = client.voiceConnections.get(msg.guild.id);
-		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+		if (voiceConnection == null) return msg.channel.send( wrap('No music being played.'));
 
 		// Pause.
-		msg.channel.sendMessage( wrap('Playback paused.'));
+		msg.channel.send( wrap('Playback paused.'));
 		if (voiceConnection.player.dispatcher) voiceConnection.player.dispatcher.pause();
 	}
 }
@@ -240,10 +240,10 @@ exports.resume = {
 	process: function(client, msg, suffix) {
 		// Get the voice connection.
 		const voiceConnection = client.voiceConnections.get(msg.guild.id);
-		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+		if (voiceConnection == null) return msg.channel.send( wrap('No music being played.'));
 
 		// Resume.
-		msg.channel.sendMessage( wrap('Playback resumed.'));
+		msg.channel.send( wrap('Playback resumed.'));
 		if (voiceConnection.player.dispatcher) voiceConnection.player.dispatcher.resume();
 	}
 }
@@ -260,12 +260,12 @@ exports.volume = {
 	process: function(client, msg, suffix) {
 		// Get the voice connection.
 		const voiceConnection = client.voiceConnections.get(msg.guild.id);
-		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+		if (voiceConnection == null) return msg.channel.send( wrap('No music being played.'));
 		// Set the volume
 		if (voiceConnection.player.dispatcher) {
 			if(suffix == ""){
 				var displayVolume = Math.pow(voiceConnection.player.dispatcher.volume,0.6020600085251697) * 100.0;
-				msg.channel.sendMessage(wrap("volume: " + displayVolume + "%"));
+				msg.channel.send(wrap("volume: " + displayVolume + "%"));
 			} else {
 				if(suffix.toLowerCase().indexOf("db") == -1){
 					if(suffix.indexOf("%") == -1){
@@ -288,15 +288,15 @@ exports.stop = {
 	description: "Removes all entries from the queue and stops playback",
 	process: function(client, msg, suffix) {
 		const voiceConnection = client.voiceConnections.get(msg.guild.id);
-		if (voiceConnection == null) return msg.channel.sendMessage( wrap('No music being played.'));
+		if (voiceConnection == null) return msg.channel.send( wrap('No music being played.'));
 
 		const queue = getQueue(msg.guild.id);
 		if(queue.length > 0){
 			queue.splice(0);
 		}
 
-		voiceConnection.player.dispatcher.end();
-		return msg.channel.sendMessage(wrap('Queue has been cleared.'));
+		//voiceConnection.player.dispatcher.end();
+		return msg.channel.send(wrap('Queue has been cleared.'));
 	}
 }
 
@@ -309,7 +309,7 @@ exports.stop = {
 function executeQueue(client, msg, queue) {
 		// If the queue is empty, finish.
 		if (queue.length === 0) {
-			msg.channel.sendMessage( wrap('Playback finished.'));
+			msg.channel.send( wrap('Playback finished.'));
 
 			// Leave the voice channel.
 			const voiceConnection = client.voiceConnections.get(msg.guild.id);
@@ -343,14 +343,14 @@ function executeQueue(client, msg, queue) {
 			const video = queue[0];
 
 			// Play the video.
-			msg.channel.sendMessage( wrap('Now Playing: ' + video.title)).then((cur) => {
+			msg.channel.send( wrap('Now Playing: ' + video.title)).then((cur) => {
 				const dispatcher = connection.playStream(Request(video.url));
 				dispatcher.setVolumeLogarithmic(defaultVolume/100.0);
 				//dispatcher.then(intent => {
 					dispatcher.on('debug',(i)=>console.log("debug: " + i));
 					// Catch errors in the connection.
 					dispatcher.on('error', (err) => {
-						msg.channel.sendMessage("fail: " + err);
+						msg.channel.send("fail: " + err);
 						// Skip to the next song.
 						queue.shift();
 						executeQueue(client, msg, queue);
@@ -367,7 +367,7 @@ function executeQueue(client, msg, queue) {
 							executeQueue(client, msg, queue);
 						}, 1000);
 					});
-				//}).catch((ex) => {msg.channel.sendMessage("playStream fail: " + ex)});//*/
+				//}).catch((ex) => {msg.channel.send("playStream fail: " + ex)});//*/
 			}).catch(console.error);
 		}).catch(console.error);
 	}

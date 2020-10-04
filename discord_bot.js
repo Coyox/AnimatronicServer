@@ -127,9 +127,9 @@ var commands = {
 			var args = suffix.split(" ");
 			var name = args.shift();
 			if(!name){
-				msg.channel.sendMessage(Config.commandPrefix + "alias " + this.usage + "\n" + this.description);
+				msg.channel.send(Config.commandPrefix + "alias " + this.usage + "\n" + this.description);
 			} else if(commands[name] || name === "help"){
-				msg.channel.sendMessage("overwriting commands with aliases is not allowed!");
+				msg.channel.send("overwriting commands with aliases is not allowed!");
 			} else {
 				var command = args.shift();
 				aliases[name] = [command, args.join(" ")];
@@ -137,7 +137,7 @@ var commands = {
 				require("fs").writeFile("./alias.json",JSON.stringify(aliases,null,2), function(){
 					uploadConfig('alias');
 				});
-				msg.channel.sendMessage("created alias " + name);
+				msg.channel.send("created alias " + name);
 			}
 		}
 	},
@@ -151,9 +151,9 @@ var commands = {
 				require("fs").writeFile("./alias.json",JSON.stringify(aliases,null,2), function(){
 					uploadConfig('alias');
 				});
-				msg.channel.sendMessage("Deleted alias " + name + ".");
+				msg.channel.send("Deleted alias " + name + ".");
 			} else {
-				msg.channel.sendMessage("No alias " + name + " found.");
+				msg.channel.send("No alias " + name + " found.");
 			}
 		}
 	},
@@ -165,7 +165,7 @@ var commands = {
 				if(typeof a === 'string')
 					text += a + " ";
 			}
-			msg.channel.sendMessage(text);
+			msg.channel.send(text);
 		}
 	},
 	"getkey": {
@@ -179,7 +179,7 @@ var commands = {
 					for(var c in Config){
 						var cmd = c + ": " + Config[c] + "\n";
 						if (text.length + cmd.length > 2000){
-							msg.channel.sendMessage(text);
+							msg.channel.send(text);
 							text = "";
 						} else 
 							text += cmd;
@@ -194,7 +194,7 @@ var commands = {
 			}
 			// Send out message
 			if(text.length > 0)
-				msg.channel.sendMessage(text);
+				msg.channel.send(text);
 		}
 	},
 	"setkey": {
@@ -205,7 +205,7 @@ var commands = {
 			switch(args.length){
 				case 0:
 				case 1:
-					msg.channel.sendMessage("Not enough arguments.");
+					msg.channel.send("Not enough arguments.");
 					return;
 				case 2:
 					var key = args[0];
@@ -216,12 +216,12 @@ var commands = {
 							require("fs").writeFile("./Config.json",JSON.stringify(Config,null,2), function(){
 								uploadConfig('config');
 							});
-							msg.channel.sendMessage("Set " + key + " to " + val);
+							msg.channel.send("Set " + key + " to " + val);
 						}
 					}
 					break;
 				default:
-					msg.channel.sendMessage("Too many arguments.");
+					msg.channel.send("Too many arguments.");
 					return;
 			}
 		}
@@ -232,7 +232,7 @@ var commands = {
 		process: function(bot, msg, suffix){
 			var args = suffix.split(' ');
 			if(args.length != 3){
-				msg.channel.sendMessage("Insufficient arguments my dude.");
+				msg.channel.send("Insufficient arguments my dude.");
 				return;
 			}
 			var cmd = args[0];
@@ -240,13 +240,13 @@ var commands = {
 			var flag = args[2];
 
 			if(flag != 0 && flag != 1){
-				msg.channel.sendMessage("Flag should be 0 or 1");
+				msg.channel.send("Flag should be 0 or 1");
 				return;
 			}
 
 			//Check for Command
 			if(!commands[cmd]){
-				msg.channel.sendMessage("Command " + cmd + " does not exist.");
+				msg.channel.send("Command " + cmd + " does not exist.");
 				return;
 			} 
 			
@@ -257,13 +257,13 @@ var commands = {
 				console.log(userId);
 				var ids = msg.channel.guild.members.filter((member) => member.user.id == userId).array();
 				if(ids.length != 1){
-					msg.channel.sendMessage(id.length + " users found for " + user);
+					msg.channel.send(id.length + " users found for " + user);
 					return;
 				}
 			} else {
 				var users = msg.channel.guild.members.filter((member) => member.user.username == user).array();
 				if(users.length != 1){
-					msg.channel.sendMessage(users.length + " users found for " + user);
+					msg.channel.send(users.length + " users found for " + user);
 					return;
 				}
 				userId = users[0].user.id;
@@ -271,11 +271,11 @@ var commands = {
 
 
 			if(userId == ""){
-				msg.channel.sendMessage("No id found for " + user);
+				msg.channel.send("No id found for " + user);
 				return;
 			}
 			if(userId == Config.admin && msg.author.id != Config.admin){
-				msg.channel.sendMessage("Can't let you do that, " + msg.author);
+				msg.channel.send("Can't let you do that, " + msg.author);
 				return;
 			}
 
@@ -299,7 +299,7 @@ var commands = {
 			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), function(){
 				uploadConfig('permissions');
 			});
-			msg.channel.sendMessage(verb + " permission for " + cmd + " to " + user);
+			msg.channel.send(verb + " permission for " + cmd + " to " + user);
 		}
 	},
 	"gpermit": {
@@ -307,25 +307,25 @@ var commands = {
 		description: "Grant or remove command permission to global",
 		process: function(bot,msg,suffix){
 			if(msg.author.id != Config.admin){
-				msg.channel.sendMessage("Can't let you do that, " + msg.author);
+				msg.channel.send("Can't let you do that, " + msg.author);
 				return;
 			}
 			var args = suffix.split(' ');
 			if(args.length != 2){
-				msg.channel.sendMessage("Insufficient arguments my dude.");
+				msg.channel.send("Insufficient arguments my dude.");
 				return;
 			}
 			var cmd = args[0];
 			var flag = args[1];
 
 			if(flag != 0 && flag != 1){
-				msg.channel.sendMessage("Flag should be 0 or 1 plz");
+				msg.channel.send("Flag should be 0 or 1 plz");
 				return;
 			}
 
 			//Check for Command
 			if(!commands[cmd]){
-				msg.channel.sendMessage("Command " + cmd + " does not exist.");
+				msg.channel.send("Command " + cmd + " does not exist.");
 				return;
 			} 
 
@@ -344,15 +344,15 @@ var commands = {
 			fs.writeFile("./permissions.json",JSON.stringify(Permissions,null,2), function(){
 				uploadConfig('permissions');
 			});
-			msg.channel.sendMessage(verb + " permission for " + cmd + " to _all_");
+			msg.channel.send(verb + " permission for " + cmd + " to _all_");
 		}
 	},
 	"ping": {
 		description: "responds pong, useful for checking if bot is alive",
 		process: function(bot, msg, suffix) {
-			msg.channel.sendMessage( msg.author+" pong!");
+			msg.channel.send( msg.author+" pong!");
 			if(suffix){
-				msg.channel.sendMessage( "note that !ping takes no arguments!");
+				msg.channel.send( "note that !ping takes no arguments!");
 			}
 		}
 	},
@@ -361,7 +361,7 @@ var commands = {
 		description: "sets bot status to idle",
 		process: function(bot,msg,suffix){ 
 			bot.user.setStatus("idle");
-			bot.user.setGame(suffix);
+			bot.user.setActivity(suffix);
 		}
 	},
 	"online": {
@@ -369,18 +369,18 @@ var commands = {
 		description: "sets bot status to online",
 		process: function(bot,msg,suffix){ 
 			bot.user.setStatus("online");
-			bot.user.setGame(suffix);
+			bot.user.setActivity(suffix);
 		}
 	},
 	"say": {
 		usage: "<message>",
 		description: "bot says message",
-		process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix);}
+		process: function(bot,msg,suffix){ msg.channel.send(suffix);}
 	},
 	"announce": {
 		usage: "<message>",
 		description: "bot says message with text to speech",
-		process: function(bot,msg,suffix){ msg.channel.sendMessage(suffix,{tts:true});}
+		process: function(bot,msg,suffix){ msg.channel.send(suffix,{tts:true});}
 	},
 	"msg": {
 		usage: "<user> <message to leave user>",
@@ -401,7 +401,7 @@ var commands = {
 				content: target + ", " + msg.author + " said: " + message
 			};
 			updateMessagebox();
-			msg.channel.sendMessage("message saved.")
+			msg.channel.send("message saved.")
 		}
 	},
 	"eval": {
@@ -409,9 +409,9 @@ var commands = {
 		description: 'Executes arbitrary javascript in the bot process. User must have "eval" permission',
 		process: function(bot,msg,suffix) {
 			if(Permissions.checkPermission(msg.author,"eval")){
-				msg.channel.sendMessage( eval(suffix,bot));
+				msg.channel.send( eval(suffix,bot));
 			} else {
-				msg.channel.sendMessage( msg.author + " is too much of a weenie to run eval()");
+				msg.channel.send( msg.author + " is too much of a weenie to run eval()");
 			}
 		}
 	},
@@ -419,9 +419,9 @@ var commands = {
 		usage: "DAVID PLEASE",
 		description: "Message a plz to david",
 		process: function(bot,msg,suffix){
-			msg.channel.sendMessage(Config.plz + " __***DAVID PLZ***__");
+			msg.channel.send(Config.plz + " __***DAVID PLZ***__");
 			if(suffix){
-				msg.channel.sendMessage( "*No args required, dumbass*");
+				msg.channel.send( "*No args required, dumbass*");
 			}
 		}
 	},
@@ -443,18 +443,18 @@ var commands = {
 					if(fraks.length + Config.frakon.length < 2000){
 						fraks += Config.frakon;
 					} else {
-						msg.channel.sendMessage(fraks);
+						msg.channel.send(fraks);
 						continue;
 					}
 				}
-				msg.channel.sendMessage(fraks);
+				msg.channel.send(fraks);
 				break;
 
 				case 2:
 				//Matrix
 				var x = parseInt(args[0], 10); var y = parseInt(args[1], 10);
 				if(x > maxFrakons || y > maxFrakons){
-					msg.channel.sendMessage("_Too many Frakons. Only "+ maxFrakons+ " allowed._");
+					msg.channel.send("_Too many Frakons. Only "+ maxFrakons+ " allowed._");
 				}
 				x = (x > maxFrakons ? maxFrakons : x);
 				y = (y > maxFrakons ? maxFrakons : y);
@@ -469,12 +469,12 @@ var commands = {
 					}
 				}
 				for(var i = 0; i<y; i++){
-					msg.channel.sendMessage(fraks);
+					msg.channel.send(fraks);
 				}
 				break;
 
 				default:
-				msg.channel.sendMessage("I don't even. Use !help you dingus.")
+				msg.channel.send("I don't even. Use !help you dingus.")
 			}
 		}
 	},
@@ -483,7 +483,7 @@ var commands = {
 		description: "Link to the latest Overwatch patch notes",
 		process: function(bot, msg, suffix){
 			var url = "https://playoverwatch.com/en-us/game/patch-notes/pc/";
-			msg.channel.sendMessage(url);
+			msg.channel.send(url);
 		}
 	},
 	"owstats": {
@@ -493,9 +493,9 @@ var commands = {
 			const regex = /^\w+[#]\d+$/g;
 			if(regex.test(suffix)){
 				var bID = suffix.replace("#", "-");
-				msg.channel.sendMessage("https://masteroverwatch.com/profile/pc/us/" + bID);
+				msg.channel.send("https://masteroverwatch.com/profile/pc/us/" + bID);
 			} else {
-				msg.channel.sendMessage("I need the whole ID with the #, weenie.");
+				msg.channel.send("I need the whole ID with the #, weenie.");
 			}
 		}
 	},
@@ -507,7 +507,7 @@ var commands = {
 			require("fs").writeFile("./Config.json",JSON.stringify(Config,null,2), function(){
 				uploadConfig('config');
 			});
-			msg.channel.sendMessage("Sailor mode is now " + Config.sailorMode);
+			msg.channel.send("Sailor mode is now " + Config.sailorMode);
 		}
 	},
 	"twitch":{
@@ -524,10 +524,10 @@ var commands = {
 				require("fs").writeFile("./twitch.json",JSON.stringify(twitch,null,2), function(){
 					uploadConfig('twitch');
 				});
-				msg.channel.sendMessage("Set Twitch watcher on " + user + ". Notification will appear in " +
+				msg.channel.send("Set Twitch watcher on " + user + ". Notification will appear in " +
 					msg.channel.name);				
 			} else {	
-				msg.channel.sendMessage("Please specify a Twitch username and nothing else!");
+				msg.channel.send("Please specify a Twitch username and nothing else!");
 			}
 		}
 	},
@@ -542,9 +542,9 @@ var commands = {
 				require("fs").writeFile("./twitch.json",JSON.stringify(twitch,null,2), function(){
 					uploadConfig('twitch');
 				});
-				msg.channel.sendMessage("Removed " + user + " from Twitch notifier.");				
+				msg.channel.send("Removed " + user + " from Twitch notifier.");				
 			} else {	
-				msg.channel.sendMessage("Please specify a Twitch username and nothing else!");
+				msg.channel.send("Please specify a Twitch username and nothing else!");
 			}
 		}
 	},
@@ -578,12 +578,12 @@ var commands = {
 			}
 			if(!data){
 				console.log(err);
-				msg.channel.sendMessage( "Error getting weather");
+				msg.channel.send( "Error getting weather");
 				return;
 			}
 			else if (!data["name"] || !data["weather"]){
 				console.log(data);
-				msg.channel.sendMessage( "No result for '" + query + "'");
+				msg.channel.send( "No result for '" + query + "'");
 				return;
 			}
 			var emoji = "";
@@ -611,7 +611,7 @@ var commands = {
 			var weather = "Weather for " + data["name"] + ":\n" +
 				data["weather"][0]["description"] + emoji + "\n" +
 				"Temperature: " + data["main"]["temp"] + "°C";
-			msg.channel.sendMessage(weather);
+			msg.channel.send(weather);
 		});
     	}
 	}
@@ -621,7 +621,7 @@ if(process.env.CLIENT_ID){
 	commands["invite"] = {
 		description: "generates an invite link you can use to invite the bot to your server",
 		process: function(bot,msg,suffix){
-			msg.channel.sendMessage("invite link: https://discordapp.com/oauth2/authorize?&client_id=" + process.env.CLIENT_ID + "&scope=bot&permissions=470019135");
+			msg.channel.send("invite link: https://discordapp.com/oauth2/authorize?&client_id=" + process.env.CLIENT_ID + "&scope=bot&permissions=470019135");
 		}
 	}
 }
@@ -634,7 +634,7 @@ if(keys.length > 0){
 			process: function(bot,msg,suffix){
 				var quotes = Quote[element];
 				var quote = quotes[Math.floor(Math.random() * (quotes.length))];
-				msg.channel.sendMessage(quote);
+				msg.channel.send(quote);
 			}
 		}
 	});
@@ -687,7 +687,7 @@ function checkTwitch(twitchfile){
 			if(!twitchfile[usernameLower].online){
 				twitchfile[usernameLower].online = true;
 				var title = stream.data[i].title + "\r\n";
-				bot.channels.get(twitchfile[usernameLower].channel).sendMessage(user_name + twitchOnlineMessage +
+				bot.channels.get(twitchfile[usernameLower].channel).send(user_name + twitchOnlineMessage +
 				title + twitchUrl + user_name);
 			}
 		}
@@ -709,7 +709,7 @@ bot.on("ready", function () {
 	console.log("Logged in! Serving in " + bot.guilds.array().length + " servers");
 	require("./plugins.js").init();
 	console.log("type "+Config.commandPrefix+"help in Discord for a commands list.");
-	bot.user.setGame(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers");
+	bot.user.setActivity(Config.commandPrefix+"help | " + bot.guilds.array().length +" Servers");
 	// Set Twitch checker if twitch config exists
 	if(twitch){
 		setInterval(function(){
@@ -735,7 +735,7 @@ function checkMessageForCommand(msg, isEdit) {
         		cmdTxt = msg.content.split(" ")[1];
         		suffix = msg.content.substring(bot.user.mention().length+cmdTxt.length+Config.commandPrefix.length+1);
 			} catch(e){ //no command
-				msg.channel.sendMessage("Yes?");
+				msg.channel.send("Yes?");
 				return;
 			}
 		}
@@ -767,9 +767,9 @@ function checkMessageForCommand(msg, isEdit) {
             		}
             		info += "\n"
             	}
-            	msg.channel.sendMessage(info);
+            	msg.channel.send(info);
             } else {
-            	msg.author.sendMessage("**Available Commands:**").then(function(){
+            	msg.author.send("**Available Commands:**").then(function(){
             		var batch = "";
             		var sortedCommands = Object.keys(commands).sort();
             		for(var i in sortedCommands) {
@@ -788,14 +788,14 @@ function checkMessageForCommand(msg, isEdit) {
             			}
             			var newBatch = batch + "\n" + info;
 									if(newBatch.length > (1024 - 8)){ //limit message length
-										msg.author.sendMessage(batch);
+										msg.author.send(batch);
 										batch = info;
 									} else {
 										batch = newBatch
 									}
 								}
 								if(batch.length > 0){
-									msg.author.sendMessage(batch);
+									msg.author.send(batch);
 								}
 							});
             }
@@ -809,13 +809,13 @@ function checkMessageForCommand(msg, isEdit) {
         			if(Config.debug){
         				msgTxt += "\n" + e.stack;
         			}
-        			msg.channel.sendMessage(msgTxt);
+        			msg.channel.send(msgTxt);
         		}
         	} else {
-        		msg.channel.sendMessage("You are not allowed to run " + cmdTxt + "!");
+        		msg.channel.send("You are not allowed to run " + cmdTxt + "!");
         	}
         } else {
-        	msg.channel.sendMessage(cmdTxt + " not recognized as a command!").then((message => message.delete(5000)))
+        	msg.channel.send(cmdTxt + " not recognized as a command!").then((message => message.delete(5000)))
         }
     } else {
 		//message isn't a command or is from us
@@ -836,14 +836,14 @@ function checkMessageForCommand(msg, isEdit) {
         		if(counter > Config.maxSwears){
         			console.log(counter);
         			msg.delete(1000);
-        			msg.channel.sendMessage(msg.author + ", do you kiss your mother with that mouth?");
+        			msg.channel.send(msg.author + ", do you kiss your mother with that mouth?");
         			return;
         		}
         	}
         }
 
         if (msg.author != bot.user && msg.isMentioned(bot.user)) {
-        	msg.channel.sendMessage(msg.author + ", may I take your order, weenie?");
+        	msg.channel.send(msg.author + ", may I take your order, weenie?");
         } else {
 
         }
@@ -869,7 +869,7 @@ bot.on("presence", function(user,status,gameId) {
 				var channel = bot.channels.get("id",message.channel);
 				delete messagebox[user.id];
 				updateMessagebox();
-				bot.sendMessage(channel,message.content);
+				bot.send(channel,message.content);
 			}
 		}
 	}catch(e){}

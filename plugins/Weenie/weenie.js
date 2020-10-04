@@ -11,13 +11,13 @@ exports.aesthetic = {
 	process: function(bot,msg,suffix){
 		var text = suffix;
 		if(text.length > 2000){
-			msg.channel.sendMessage("Too much vapourwave");
+			msg.channel.send("Too much vapourwave");
 			return;
 		}
 		for(var char in aesthetic){
 			text = text.split(char).join(aesthetic[char]);
 		}
-		msg.channel.sendMessage(text);
+		msg.channel.send(text);
 	}
 }
 

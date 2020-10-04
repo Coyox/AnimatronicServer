@@ -10,7 +10,7 @@ exports.commands = [
 exports.pullanddeploy = {
 	description: "bot will perform a git pull master and restart with the new code",
 	process: function(bot,msg,suffix) {
-		msg.channel.sendMessage("fetching updates...").then(function(sentMsg){
+		msg.channel.send("fetching updates...").then(function(sentMsg){
 			console.log("updating...");
 			var spawn = require('child_process').spawn;
 			var log = function(err,stdout,stderr){
@@ -50,11 +50,11 @@ exports.version = {
 	process: function(bot,msg,suffix) {
 		var commit = require('child_process').spawn('git', ['log','-n','1']);
 		commit.stdout.on('data', function(data) {
-			msg.channel.sendMessage(data);
+			msg.channel.send(data);
 		});
 		commit.on('close',function(code) {
 			if( code != 0){
-				msg.channel.sendMessage("failed checking git version!");
+				msg.channel.send("failed checking git version!");
 			}
 		});
 	}
@@ -63,7 +63,7 @@ exports.version = {
 exports.myid = {
 	description: "returns the user id of the sender",
 	process: function(bot,msg){
-		msg.channel.sendMessage(msg.author.id);
+		msg.channel.send(msg.author.id);
 	}
 }
 
@@ -74,19 +74,19 @@ exports.userid = {
 		if(suffix){
 			var users = msg.channel.guild.members.filter((member) => member.user.username == suffix).array();
 			if(users.length == 1){
-				msg.channel.sendMessage( "The id of " + users[0].user.username + " is " + users[0].user.id)
+				msg.channel.send( "The id of " + users[0].user.username + " is " + users[0].user.id)
 			} else if(users.length > 1){
 				var response = "multiple users found:";
 				for(var i=0;i<users.length;i++){
 					var user = users[i];
 					response += "\nThe id of <@" + user.id + "> is " + user.id;
 				}
-				msg.channel.sendMessage(response);
+				msg.channel.send(response);
 			} else {
-				msg.channel.sendMessage("No user " + suffix + " found!");
+				msg.channel.send("No user " + suffix + " found!");
 			}
 		} else {
-			msg.channel.sendMessage( "The id of " + msg.author + " is " + msg.author.id);
+			msg.channel.send( "The id of " + msg.author + " is " + msg.author.id);
 		}
 	}
 }
