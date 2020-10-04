@@ -31,7 +31,11 @@
     "opusscript": "^0.0.1",
     "uws": "^0.14.x",
     "aws-sdk": "*",
-    "dotenv": "*"
+    "dotenv": "*",
+    "d20": "^1.4.0",
+    "leet": "^1.2.7",
+    "urban": "^0.3.0",
+    "node-wolfram": "0.0.1"
   },
   "scripts": {
     "start": "node discord_bot.js",
