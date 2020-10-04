@@ -295,7 +295,7 @@ exports.stop = {
 			queue.splice(0);
 		}
 
-		if (voiceConnection.player.dispatcher) voiceConnection.player.dispatcher.end();
+		//voiceConnection.player.dispatcher.end();
 		return msg.channel.send(wrap('Queue has been cleared.'));
 	}
 }
@@ -313,7 +313,7 @@ function executeQueue(client, msg, queue) {
 
 			// Leave the voice channel.
 			const voiceConnection = client.voiceConnections.get(msg.guild.id);
-			if (voiceConnection.player.dispatcher != null) {
+			if (voiceConnection != null) {
 				voiceConnection.player.dispatcher.end();
 				voiceConnection.channel.leave();
 				return;
