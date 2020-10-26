@@ -13,7 +13,8 @@ function YoutubePlugin () {
 YoutubePlugin.prototype.respond = function (query, channel, bot) {
 	this.youtube.search(query, 1, function(error, result) {
 			if (error) {
-				channel.send("¯\\_(ツ)_/¯");
+				channel.send("YouTube API Error");
+				console.log(error);
 			}
 			else {
 				if (!result || !result.items || result.items.length < 1) {
