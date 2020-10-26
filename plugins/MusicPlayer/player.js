@@ -75,6 +75,7 @@ exports.play = {
 			// If the suffix doesn't start with 'http', assume it's a search.
 			if (!suffix.toLowerCase().startsWith('http')) {
 				suffix = 'ytsearch1:' + suffix;
+				console.log(suffix);
 			}
 
 			// Get the video info from youtube-dl.
