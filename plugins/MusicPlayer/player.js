@@ -101,6 +101,8 @@ exports.play = {
 				//|| info.format_id === undefined || info.format_id.startsWith('0')
 				if (err ) {
 					return response.edit( wrap('Video not found or cannot be streamed'));
+					console.log(suffix);
+					console.log(err);
 				}
 
 				var result = info[0] || info;
