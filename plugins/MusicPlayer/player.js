@@ -1,4 +1,6 @@
+const util = require('util');
 const YoutubeDL = require('youtube-dl');
+const youtube_node = require('youtube-node');
 //const YoutubeDL = require('ytdl-core');
 //const YoutubeDL = equire('ytdl-core-discord');
 //const Request = require('request');
@@ -22,6 +24,10 @@ exports.commands = [
 	"resume",
 	"volume"
 ]
+// Youtube Search with API
+var youtube = new youtube_node();
+youtube.setKey(process.env.YOUTUBE_API_KEY);
+youtube.addParam('type', 'video');
 
 let options = false;
 	let PREFIX = (options && options.prefix) || '!';
@@ -74,8 +80,19 @@ exports.play = {
 		msg.channel.sendMessage( wrap('Searching...')).then(response => {
 			// If the suffix doesn't start with 'http', assume it's a search.
 			if (!suffix.toLowerCase().startsWith('http')) {
-				suffix = 'ytsearch1:' + suffix;
-				console.log(suffix);
+				youtube.search(suffix, 1, function(error, result) {
+					if (error) {
+						return response.edit( wrap('YouTube Search Error'));
+						console.log(error);
+					}
+					else {
+						if (!result || !result.items || result.items.length < 1) {
+							return response.edit( wrap('No Results Found'));
+						} else {
+							suffix = "http://www.youtube.com/watch?v=" + result.items[0].id.videoId;
+						}
+					}
+				});
 			}
 
 			// Get the video info from youtube-dl.
@@ -83,7 +100,7 @@ exports.play = {
 				// Verify the info.
 				//|| info.format_id === undefined || info.format_id.startsWith('0')
 				if (err ) {
-					return response.edit( wrap('Invalid video!!'));
+					return response.edit( wrap('Video not found or cannot be streamed'));
 				}
 
 				var result = info[0] || info;
